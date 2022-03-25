@@ -1,0 +1,3 @@
+0 create hub h 4
+0 create host pc
+0 connect h_1 pc_1
