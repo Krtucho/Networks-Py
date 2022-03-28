@@ -3,7 +3,7 @@ from Port import Port
 from Hub import Hub
 
 class Graph:
-    def init(self):
+    def __init__(self):
         self.V = []
         self.E = {}
         

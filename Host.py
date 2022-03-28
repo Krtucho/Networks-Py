@@ -3,6 +3,7 @@ from Device import Device
 
 class Host(Device):
     def __init__(self, name):
+        self.name=name
         self.port = Port(f"{self.name}_1")
         
         
