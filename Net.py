@@ -7,11 +7,12 @@ class Net:
         self.hosts = {}
         self.hubs = {}
         
-    def create_host(self):
-        pass
+    def create_host(self, name):
+        
+        self.graph.add
     
     def create_hub(self):
-        pass
+        
     
     def connect(self, port1, port2):
         if ciclos:

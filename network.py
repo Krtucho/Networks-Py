@@ -1,6 +1,7 @@
 import sys
 from Host import Host
 from Hub import Hub
+from Net import Net
 
 signal_time: int = 10
 
@@ -11,6 +12,23 @@ def create_device(type="host", name="", n_ports=1):
     if type == "hub":
         return Hub(name)
     return None
+
+def get_inst(lists: list, time: int)->list:
+    result = []
+    for i in range(0, len(lists)):
+        if lists[i][0] == time and lists[i][1] == "create" :
+            result.append(lists.pop(i))
+    for i in range(0, len(lists)):
+        if lists[i][0] == time and lists[i][1] == "connect" or lists[i][1] == "disconnect":
+            result.append(lists.pop(i))
+            
+    for i in range(0, len(lists)):
+        if lists[i][0] == time and lists[i][1] == "send":
+            result.append(lists.pop(i))
+            
+    # temp = [item for item in lists if item[0] == time and item[1] ==  "create"]
+    return result
+    
 
 def start(signal_time):
     """Metodo principal"""
@@ -31,8 +49,9 @@ def start(signal_time):
         # actual = lists[index]
         # while actual[0] == 
         #     actual = lists[index]
-        while "instruction at this time...":
-            instruction = get_instruction()
+        instruction = get_inst(lists, time)
+        
+        while len(instruction) > 0:
             
             if instruction.type == "create":
                 if "host":

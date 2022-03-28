@@ -15,7 +15,7 @@ class Host(Device):
     def send_bit(self):
         pass
     
-    def check_transmision(self)
+    def check_transmision(self):
         if self.transmitting:
             if ! collision:
                 write_in_file_logs()
