@@ -2,6 +2,7 @@ import sys
 from Host import Host
 from Hub import Hub
 from Net import Net
+from queue import Queue
 
 signal_time: int = 10
 
@@ -55,9 +56,9 @@ def start(signal_time):
             
             if instruction.type == "create":
                 if "host":
-                    network.create_host()
+                    network.create_host(list[3])
                 elif "hub":
-                    network.create_hub()
+                    network.create_hub(list[3],list[4])
             elif instruction.type == "connect":
                 network.connect(instruction.port1, instruction.port2)
             elif instruction.type == "disconnect":
