@@ -57,18 +57,40 @@ class Net:
                 do_something()
         for host in hosts:
             read_info_and_chek()
-            
-    def BFS(graph:Graph,s:Port,transmitting:bool):
+
+    def send(host:Host,data:list):
+        
+        return 
+
+    def sen_bit(host:Host,bit:int):
+
+
+        return
+
+    def my_device(port:Port):
+        
+
+
+    def BFS(s:Host,transmitting:bool):
+        #pasa por todos los cables y dispositivos alcanzables desde s, si se esta transmitiendo significa que se va a 
+        # escribir bit en cada uno de los puertos por los que se pase, en otro caso lo que se va a ir calculando es la 
+        #cantidad de bits que se quieren mandar desde distintos host por cada cable(para ver si hay colision)
         queue:list=[]
         d={}
+        #s.port
         #i:int=0
-        queue.append(s)
+        hub:bool=false #indica si el ultimo puerto en el que estuve era de un hub(solo se utiliza si se esta transmitiendo)
+        queue.append(s.port)
         while len(queue)>0:
             u=queue.pop(0)
-            for v in graph.E[u]:
-                if d[v]==None:#d[v] == 0:
-                    d[v]=d[u]+1
-                    #aqui es donde viene la parte de verificar si se esta transmitiendo para escribir y en caso de que si, escribir en el txt
-                    #aqui poner lo de que el host lea el valor 
-                    queue.append(v)        
+            hub=u.
+            for v in self.graph.E[u]:
+                if transmitting:
+                    
+                    v[0].bits_received_in_ms.append(s.actual_bit) #si se esta transmitiendo, se agrega a los bits que recibe el puerto el bit actual
+                    #  aqui es donde se indicaria a cada uno escribir lo que tenga que escribir
+                if d[v[0]]==None:#d[v] == 0:
+                    d[v[0]]=d[u]+1
+                v[1]=v[1]+1
+                    queue.append(v[0])        
         return d

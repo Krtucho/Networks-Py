@@ -19,14 +19,14 @@ class Graph:
         return Port("aaa")
         
         
-    def add_edge(self, u: Port, v: Port, w: int):
+    def add_edge(self, u: Port, v: Port, count: int):
         if self.E[u] == None:
             self.E[u] = []
         if self.E[v] == None:
             self.E[v] = []
         
-        self.E[u].append((v, w))
-        self.E[v].append((u, w))
+        self.E[u].append((v, count))
+        self.E[v].append((u, count))
         
     def remove_edge(self, u: Port):
         target = None #[v for v in self.E[u] if v != s]
