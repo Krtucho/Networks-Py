@@ -5,7 +5,7 @@ from Hub import Hub
 from Host import Host
 from Queue import queue
 
-def BFS(graph:Graph,s:Port):
+def BFS00(graph:Graph,s:Port):
     queue=[]
     d={}
     i:int
@@ -20,6 +20,20 @@ def BFS(graph:Graph,s:Port):
     
     return d
 
+def BFS(graph:Graph,s:Port,transmitting:bool):
+        queue:list=[]
+        d={}
+        #i:int=0
+        queue.append(s)
+        while len(queue)>0:
+            u=queue.pop(0)
+            for v in graph.E[u]:
+                if d[v]==None:#d[v] == 0:
+                    d[v]=d[u]+1
+                    #aqui es donde viene la parte de verificar si se esta transmitiendo para escribir y en caso de que si, escribir en el txt
+                    #aqui poner lo de que el host lea el valor 
+                    queue.append(v)        
+        return d
 
 def instruction_parser(graph:Graph,list:[]):
     if list[1]== "create":
