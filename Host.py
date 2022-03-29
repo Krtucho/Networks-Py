@@ -6,6 +6,8 @@ class Host(Device):
         super().__init__(name)
         self.port = Port(f"{self.name}_1")
         self.transmitting = False
+
+
     def read_bit(self, bit, port=1):
         self.port.read_bit(bit)
         pass
@@ -15,9 +17,10 @@ class Host(Device):
     def send_bit(self):
         pass
     
+
     def check_transmision(self):
         if self.transmitting:
-            if ! collision:
+            if !collision:
                 write_in_file_logs()
             else:
                 if self.port.disconnected:

@@ -1,0 +1,3 @@
+clase Graph:
+Definimos como un Graph(grafo) el conjunto de los puertos de todos los dispositivos que pertenecen a nuestra 
+red (vertices V) y las conexiones entre ellos (aristas E)
