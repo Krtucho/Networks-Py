@@ -3,6 +3,7 @@ from Device import Device
 
 class Hub(Device):
     def __init__(self, name, n_ports):
+        super().__init__(name)
         self.n_ports = n_ports
         self.ports: dict = {}
 

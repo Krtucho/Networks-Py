@@ -3,6 +3,7 @@ from Port import Port
 from Device import Device
 from Hub import Hub
 from Host import Host
+from Queue import queue
 
 def BFS(graph:Graph,s:Port):
     queue=[]

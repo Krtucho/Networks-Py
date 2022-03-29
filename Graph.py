@@ -15,6 +15,10 @@ class Graph:
                 if item != s:
                     self.add_edge(s, item, -2)
         
+    def search_port(self, port)-> Port:
+        return Port("aaa")
+        
+        
     def add_edge(self, u: Port, v: Port, w: int):
         if self.E[u] == None:
             self.E[u] = []
@@ -32,10 +36,10 @@ class Graph:
         for v, i in enumerate(temp_list):
             if v[1] != -2:
                 target = v[0]
+                v[0].connected = False
                 temp_list.pop(i)
                 
                 # temp_list = self.E[v]
                 self.remove_edge(target)
                 break
-        
-        
+            
