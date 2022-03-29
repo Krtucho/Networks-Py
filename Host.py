@@ -13,8 +13,8 @@ class Host(Device):
         
         self.time_to_retry = 0  # Tiempo necesario para reintentar enviar
         self.pending = False    # Si el host esta intentando reenviar alguna informacion que no puedo enviarla debido a una colision o un a desconexion
-        self.bits_to_send = []
-        self.actual_bit = 0
+        self.bits_to_send = []  # Bits a enviar
+        self.actual_bit = 0     # Bit que se esta enviando actualmente
 
 
     def read_bit(self, bit, port=1):
