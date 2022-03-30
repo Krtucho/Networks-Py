@@ -65,7 +65,7 @@ def start(signal_time):
                 network.disconnect(instruction.port)
             elif instruction.type == "send":
                 network.send(instruction.port)
-        network.update(time)
+        network.update(time, signal_time)
         time = time + 1
         
             
