@@ -26,59 +26,7 @@ class Host(Device):
     def send_bit(self):
         pass
         
-    def write_in_file_logs(self, ms: int,port: Port,sending: bool, collision: bool):
-        bit = port.bits_received_in_ms[-1]
-        state = "send" if sending else "receive"
-        name = port.name
-        ok = "collision" if collision else "ok"
-        if sending:
-            self.write_msg_in_file(f"{ms} {name} {state} {bit} {ok}")
-        elif not sending:
-            self.write_msg_in_file(f"{ms} {name} {state} {bit}")
-
-    
-    def update_bit_time(self, ms: int, collision: bool):
-        if self.time_to_send_next_bit == 0:
-            if len(self.bits_to_send) > 0:
-                self.time_to_send_next_bit = 10
-                self.log(f"{ms} {self.name} send {self.actual_bit} {'collision' if collision else 'ok'}")
-                self.actual_bit = self.bits_to_send.pop(0)
-            elif len(self.bits_to_send) == 0:
-                self.time_to_send_next_bit=10
-        elif self.time_to_send_next_bit > 0:
-            self.time_to_send_next_bit -= 1
-            self.log(f"{ms} {self.name} send {self.actual_bit} {'collision' if collision else 'ok'}")
-    
-    def update(self, time, signal_time):
-        for host in self.hosts:
-            if host.writing:
-                if not collision(host):
-                    # bfs(host)
-                    host.transmitting = True
-                    host.sending = False
-                elif collision(host):
-                    host.sending = False
-                    host.pending = True
-                    host.time_to_retry = randint(1, 3)
-                    self.write_in_file_logs(self, ms=signal_time, host.port ,sending=True, collision = True)
-        
-        for host in hosts:
-            if host.transmitting:
-                # if not collision(host):
-                logging: bool = False
-                if host.time_to_send_next_bit == signal_time:
-                    logging = True
-                bfs(host, True, logging)
-                update_bit_time(host)
-           
-        # for host in hosts:
-        #     read_info_and_chek()
-        
-        self.graph.clean_edges_states()
-        
-    def clean_edges_states(self):
-        for item in E.values:
-            item[2] = 0
+   
 
     # def check_transmision(self):
     #     if self.transmitting:

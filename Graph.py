@@ -43,3 +43,6 @@ class Graph:
                 self.remove_edge(target)
                 break
             
+        def clean_edges_states(self):
+            for item in E.values:
+                item[1] = -1
