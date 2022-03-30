@@ -1,6 +1,7 @@
 from Graph import Graph
 from Host import Host
 from Hub import Hub
+import random
 
 class Net:
     def __init__(self, signal_time:int)->None:
@@ -167,8 +168,8 @@ class Net:
                     #  aqui es donde se indicaria a cada uno escribir lo que tenga que escribir
                 if d[v[0]]==None:#d[v] == 0:
                     d[v[0]]=d[u]+1
-                if v[1] == -1:
-                    v[1] = 
+                # if v[1] == -1:
+                #     v[1] = 
                 v[1]=v[1]+1#para cuando se esten buscando colisiones, aqui se cuentan la cantidad de colisiones que hubo en este cable
                     queue.append(v[0])        
         return d

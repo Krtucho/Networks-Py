@@ -1,6 +1,5 @@
 from Port import Port
 from Device import Device
-import random
 
 class Host(Device):
     def __init__(self, name):

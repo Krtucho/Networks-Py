@@ -19,7 +19,7 @@ class Graph:
         return Port("aaa")
         
         
-    def add_edge(self, u: Port, v: Port, w: int):
+    def add_edge(self, u: Port, v: Port, w: int): # w es el valor de la arista
         if self.E[u] == None:
             self.E[u] = []
         if self.E[v] == None:
