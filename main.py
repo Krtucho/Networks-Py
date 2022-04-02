@@ -64,7 +64,7 @@ def start(signal_time):
             elif instruction.type == "disconnect":
                 network.disconnect(instruction.port)
             elif instruction.type == "send":
-                network.send(instruction.port)
+                network.send(Net.my_device(instruction.port),instruction.bits, time)#arreglar
         network.update(time)
         time = time + 1
         
