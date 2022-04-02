@@ -23,7 +23,7 @@ class Host(Device):
     def send_many_bits(self, bits:list):
         pass
     
-    def send_bit(self):
+    def send_bit(self,bit:int):
         pass
         
     
