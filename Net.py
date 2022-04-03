@@ -20,11 +20,7 @@ class Net:
         # self.hubs.
     
 #region Utiles
-    def ciclos(self, port1, port2):
-        d=BFS(port1,graph,false)
-        return d[port2]!=None
-        # Hago DFS, BFS desde port1 y si llego a port 2 => Existe un ciclo
-        
+    
     def my_device(port:Port):
         name:str=""
         for s in port.name:
@@ -35,11 +31,41 @@ class Net:
             return hosts[name]
         if(hubs.__contains__(name)):
             return hubs[name]
-        
-        
-    def hub_center(port:Port):#devuelve true si este puerto es el puerto ficticio que queda en el centro del hub y se nombra "name"_0
-        if port.name[len(port.name)-1]=='0' and port.name[len(port.name)-2]=='_'
 
+    def hub_center(port:Port):#devuelve true si este puerto es el puerto ficticio que queda en el centro del hub y se nombra "name"_0
+        return port.name[len(port.name)-1]=='0' and port.name[len(port.name)-2]=='_'
+
+     def write_in_file_logs(self, ms: int,port: Port,sending: bool, collision: bool):
+            bit = port.bits_received_in_ms[-1]
+        state = "send" if sending else "receive"
+        name = port.name
+        ok = "collision" if collision else "ok"
+        if sending:
+            self.write_msg_in_file(f"{ms} {name} {state} {bit} {ok}")
+        elif not sending:
+            self.write_msg_in_file(f"{ms} {name} {state} {bit}")
+
+    def BFS(s:Host,bit:int):#transmite las informaciones que se envian a todos los dispositivos alcanzables
+        queue:list=[]
+        queue.append(s.port)
+        while len(queue)>0:
+            u=queue.pop(0)
+            for v in self.graph.E[u]:
+                sending:bool=hub_center(u[0])#sirve para indicarle a un hub si por el puerto actual se envia, es falso si se esta entrando la informacion por este puerto
+                                             #si mi antecesor es el centro del hub, entonces soy un puerto de salida de este
+                    if v[1] != None:
+                        value=v[1]^bit# si hay valor en el cable se hace xor entre este y el bit que se esta enviando y esto es lo que se almacena en el cable
+                    else: value=bit# si en el cable no hay valor, se pone el bit que se esta enviando
+                    v[1]=value 
+                    actual_device = my_device(v[0])
+                    if isinstance(actual_device,Hub):
+                        actual_device.write_in_file_logs(v[0],sending,value)# se manda a escribir al hub que le llega o recibe el bit correspondiente
+                    
+    def ciclos(self, port1, port2):
+        d=BFS(port1,0)
+        return d[port2]!=None
+        # Hago DFS, BFS desde port1 y si llego a port 2 => Existe un ciclo
+                           
 
 #endregion
 
@@ -70,17 +96,7 @@ class Net:
         port1 = self.graph.search_port(port)
         self.graph.remove_edge(port1)
     
-     def write_in_file_logs(self, ms: int,port: Port,sending: bool, collision: bool):
-            bit = port.bits_received_in_ms[-1]
-        state = "send" if sending else "receive"
-        name = port.name
-        ok = "collision" if collision else "ok"
-        if sending:
-            self.write_msg_in_file(f"{ms} {name} {state} {bit} {ok}")
-        elif not sending:
-            self.write_msg_in_file(f"{ms} {name} {state} {bit}")
-
-    
+     
     def update_bit_time(self, ms: int, collision: bool):
         if self.time_to_send_next_bit == 0:
             if len(self.bits_to_send) > 0:
@@ -131,25 +147,11 @@ class Net:
         BFS(host,host.actual_bit)
         return
 
-    def BFS(s:Host,bit:int):#transmite las informaciones que se envian a todos los dispositivos alcanzables
-        queue:list=[]
-        queue.append(s.port)
-        while len(queue)>0:
-            u=queue.pop(0)
-            #hub= isinstance(my_device(u),Hub)
-            for v in self.graph.E[u]:
-                sending:bool=hub_center(u[0])#sirve para indicarle a un hub si por el puerto actual se envia, es falso si se esta entrando la informacion por este puerto
-                                             #si mi antecesor es el centro del hub, entonces soy un puerto de salida de este
-                    # if not hub and isinstance(my_device(v[0]),Hub):#significa que estoy entrando ahora en el hub
-                    if v[1] != None:
-                        value=v[1]^bit
-                    else: value=bit
-                    v[1]=value
-                    actual_device = my_device(v[0])
-                    if isinstance(actual_device,Hub):
-                        actual_device.write_in_file_logs(v[0],sending,value)# se manda a escribir al hub que le llega o recibe el bit correspondiente
-                    
 
+
+
+
+   
 
 
 

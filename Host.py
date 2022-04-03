@@ -24,23 +24,19 @@ class Host(Device):
     def send(self, bits:list,time:int):#coloco 
         transmitting=True  #actualizo a transmitiendo
         time_last_bit=time # coloco el tiempo de inicio del bit que envio ahora
-        for i in list: bits_to_send.append(i) #agrego todos los bits nuevos a la lista de bits a transmitir
+        for i in bits: 
+            bits_to_send.append(i) #agrego todos los bits nuevos a la lista de bits a transmitir
         
-    
-    # def send_bit(self):#Envia el primer bit de bits_to_send
 
-    #     pass
-           
-
-    def check_transmision(self):
-        if self.transmitting:
-            if !collision:#comprobar que lo que se esta transmitiendo es igual a lo primero que esta en la cola de pendientes
-                write_in_file_logs()
-            else:
-                if self.port.disconnected:
-                    try_again()
-                elif collision:
-                    wait()
+    # def check_transmision(self):
+    #     if self.transmitting:
+    #         if !collision:#comprobar que lo que se esta transmitiendo es igual a lo primero que esta en la cola de pendientes
+    #             write_in_file_logs()
+    #         else:
+    #             if self.port.disconnected:
+    #                 try_again()
+    #             elif collision:
+    #                 wait()
             #aqui implementar que si esta em el ultimo ms de su tranmision, entonces su imprimir que su transmision fue ok
         #aqui implementar lo de si esta leyendo y se cambio el ultimo valor que imprimio, mandar a imprimir y agregar a su lista de recibidos
         #y si no se cambio y pasaron 10 ms mandar a escribir y agregar tambien a su lista de recibidos
