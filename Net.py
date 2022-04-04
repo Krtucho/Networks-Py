@@ -35,17 +35,17 @@ class Net:
     def hub_center(port:Port):#devuelve true si este puerto es el puerto ficticio que queda en el centro del hub y se nombra "name"_0
         return port.name[len(port.name)-1]=='0' and port.name[len(port.name)-2]=='_'
 
-     def write_in_file_logs(self, ms: int,port: Port,sending: bool, collision: bool):
-            bit = port.bits_received_in_ms[-1]
-        state = "send" if sending else "receive"
-        name = port.name
-        ok = "collision" if collision else "ok"
-        if sending:
-            self.write_msg_in_file(f"{ms} {name} {state} {bit} {ok}")
-        elif not sending:
-            self.write_msg_in_file(f"{ms} {name} {state} {bit}")
+    #  def write_in_file_logs(self, ms: int,port: Port,sending: bool, collision: bool):
+    #         bit = port.bits_received_in_ms[-1]
+    #     state = "send" if sending else "receive"
+    #     name = port.name
+    #     ok = "collision" if collision else "ok"
+    #     if sending:
+    #         self.write_msg_in_file(f"{ms} {name} {state} {bit} {ok}")
+    #     elif not sending:
+    #         self.write_msg_in_file(f"{ms} {name} {state} {bit}")
 
-    def BFS(s:Host,bit:int):#transmite las informaciones que se envian a todos los dispositivos alcanzables
+    def BFS(s:Host,bit:int,time:int):#transmite las informaciones que se envian a todos los dispositivos alcanzables
         queue:list=[]
         queue.append(s.port)
         while len(queue)>0:
@@ -56,10 +56,11 @@ class Net:
                     if v[1] != None:
                         value=v[1]^bit# si hay valor en el cable se hace xor entre este y el bit que se esta enviando y esto es lo que se almacena en el cable
                     else: value=bit# si en el cable no hay valor, se pone el bit que se esta enviando
+                    change_bit=v[1]==value
                     v[1]=value 
                     actual_device = my_device(v[0])
-                    if isinstance(actual_device,Hub):
-                        actual_device.write_in_file_logs(v[0],sending,value)# se manda a escribir al hub que le llega o recibe el bit correspondiente
+                    if isinstance(actual_device,Hub) and change:#si es un hub y ademas se cambio la informaci'on que se esta enviando
+                        actual_device.write_in_file_logs(f"{time} {v[0].name} {"send" if sending else "receive":} {value}")# se manda a escribir al hub que le llega o recibe el bit correspondiente
                     
     def ciclos(self, port1, port2):
         d=BFS(port1,0)
@@ -110,27 +111,29 @@ class Net:
             self.log(f"{ms} {self.name} send {self.actual_bit} {'collision' if collision else 'ok'}")
     
     def update(self, time, signal_time):
+         for host in hosts:
+            if host.transmitting or (host.pending and host.time_to_send_next_bit == 0):
+                # if not collision(host):
+                logging: bool = False
+                if host.time_to_send_next_bit == signal_time:
+                    logging = True
+                #bfs(host, True, logging)
+                BFS(host,)
+                update_bit_time(host)
+
         for host in self.hosts:
             if host.writing:
-                if not collision(host):
+                if self.graph.E[host][1]==host.actual_bit  #no hay colision #collision(host):
                     # bfs(host)
                     host.transmitting = True
                     host.sending = False
+
                 elif collision(host):
                     host.sending = False
                     host.pending = True
                     host.time_to_retry = randint(1, 3)
                     self.write_in_file_logs(self, ms=signal_time, host.port ,sending=True, collision = True)
         
-        for host in hosts:
-            if host.transmitting:
-                # if not collision(host):
-                logging: bool = False
-                if host.time_to_send_next_bit == signal_time:
-                    logging = True
-                bfs(host, True, logging)
-                update_bit_time(host)
-           
         # for host in hosts:
         #     read_info_and_chek()
         
@@ -139,19 +142,14 @@ class Net:
 
     def send(host:Host,data:list, time:int):#metodo que se utiliza cuando se envia a un host a enviar un conjunto de bits
         host.send(data,time)
-        send_bit(host)
+        send_bit(host,time)
         return 
 
-    def send_bit(host:Host):#metodo que se utiliza a la hora de enviar cada bit
+    def send_bit(host:Host,time:int):#metodo que se utiliza a la hora de enviar cada bit
         host.actual_bit=host.bits_to_send[0]
-        BFS(host,host.actual_bit)
+        BFS(host,host.actual_bit,time)
         return
 
-
-
-
-
-   
 
 
 

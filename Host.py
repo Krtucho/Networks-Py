@@ -22,10 +22,11 @@ class Host(Device):
         self.port.read_bit(bit)
     
     def send(self, bits:list,time:int):#coloco 
-        transmitting=True  #actualizo a transmitiendo
-        time_last_bit=time # coloco el tiempo de inicio del bit que envio ahora
+        #transmitting=True  #actualizo a transmitiendo
+        self.time_last_bit=time # coloco el tiempo de inicio del bit que envio ahora
+        self.writing=True
         for i in bits: 
-            bits_to_send.append(i) #agrego todos los bits nuevos a la lista de bits a transmitir
+            self.bits_to_send.append(i) #agrego todos los bits nuevos a la lista de bits a transmitir
         
 
     # def check_transmision(self):
@@ -46,3 +47,4 @@ class Host(Device):
         pass
     # def show_port_name(self):
     #     print(f"{self.name}_{self.port.name}")
+
