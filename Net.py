@@ -48,50 +48,38 @@ class Net:
 
 
 
-    def BFS(s:Host,is_transmitting:bool,logging:bool):
-        #pasa por todos los cables y dispositivos alcanzables desde s, si se esta transmitiendo significa que se va a 
-        # escribir bit en cada uno de los puertos por los que se pase, en otro caso lo que se va a ir calculando es la 
-        #cantidad de bits que se quieren mandar desde distintos host por cada cable(para ver si hay colision)
+    def BFS(s:Host,bit:int,time:int,checking:bool):
         queue:list=[]
-        d={}
-        collision = collision(s)
-
-        #time:int=s.time_to_send_next_bit
-        #s.port
-        #i:int=0
         hub:bool=false #indica si el ultimo puerto en el que estuve era de un hub(solo se utiliza si se esta transmitiendo)
         queue.append(s.port)
+        collisions:list=[]
         while len(queue)>0:
             u=queue.pop(0)
             hub= isinstance(my_device(u),Hub)
             for v in self.graph.E[u]:
-                if is_transmitting:
+                if not checking:#es un bfs para enviar informacion por los cables
+
                     sending:bool=false#sirve para indicarle a un hub si por el puerto actual se envia, es falso si se esta entrando la informacion por este puerto
-                    
-                    if not hub and isinstance(my_device(v[0]),Hub):#significa que estoy entrando ahora en el hub
-                        sending=false
                     if hub_center(u[0]):sending=true#si mi antecesor es el centro del hub, entonces soy un puerto de salida de este
-                        
-                    if logging:#si segun el tiempo es momento de escribir en todos los txt
+                    
+                    if len(my_device(v[0]).bits_received_in_ms)==0:#si no esta en momento de escribir pero se sabe que este dispositivo se agrego recientemente porque tiene su lista de bits recibidos vacia
                         v[0].read_bit(s.actual_bit)#se agrega a la lista de los valores annadidos ahora el bit que se esta pasando
+                        actual_device.write_in_file_logs(f"{time} {v[0].name} "receive" {bit}")# se manda a escribir al hub que le llega o recibe el bit correspondiente
 
-                        #v[0].bits_received_in_ms.append(s.actual_bit) #se agrega a la lista de los valores annadidos ahora el bit que se esta pasando
-                        my_device(v[0]).write_in_file_logs(v[0],sending,collision)# se manda a escribir al dispositivo su mensaje correspondiente
+                    v[1]=bit #se escribe el bit en el cable
+                    actual_device = my_device(v[0])
+                    if isinstance(actual_device,Hub):#si es un hub se escribe la informacion que está enviando 
+                        actual_device.write_in_file_logs(f"{time} {v[0].name} {"send" if sending else "receive"} {bit}")# se manda a escribir al hub que le llega o recibe el bit correspondiente
+                else:#o sea es un bfs para detectar colisiones
+                    actual_device = my_device(v[0])
+                    if isinstance(actual_device,Host):#si es un host se busca si esta enviando o transmitiendo para detectar la colision
+                        #aqui importante castear a Host el actual_device
+                        if actual_device.writing or actual_device.transmitting:
+                            collisions.append(actual_device)
 
-                    else if len(my_device(v[0]).bits_received_in_ms)==0:#si no esta en momento de escribir pero se sabe que este dispositivo se agrego recientemente porque tiene su lista de bits recibidos vacia
-                        v[0].read_bit(s.actual_bit)#se agrega a la lista de los valores annadidos ahora el bit que se esta pasando
-                        #v[0].bits_received_in_ms.append(s.actual_bit) 
-                        my_device(v[0]).write_in_file_logs(v[0],sending,collision)
+                queue.append(v[0])    
+        return collisions
 
-                    #if my_device(v[0]).:#si se esta transmitiendo y en este vertice se debe escribir porque se acaba de conectar, se agrega a los bits que recibe el puerto el bit actual
-                        #v[0].bits_received_in_ms.append(s.actual_bit) #se agrega a la lista de los valores annadidos ahora el bit que se esta pasando
-                        #my_device(v[0]).write_in_file_logs(v[0],sending)
-                    #  aqui es donde se indicaria a cada uno escribir lo que tenga que escribir
-                if d[v[0]]==None:#d[v] == 0:
-                    d[v[0]]=d[u]+1
-                v[1]=v[1]+1#para cuando se esten buscando colisiones, aqui se cuentan la cantidad de colisiones que hubo en este cable
-                    queue.append(v[0])        
-        return d
 
 
 
