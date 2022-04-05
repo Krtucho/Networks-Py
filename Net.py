@@ -74,8 +74,8 @@ class Net:
 
     
 
-    def ciclos(self, port1, port2):
-        return True
+    def has_cycles(self, port1, port2):
+        return False
         # d=BFS(port1,0)
         # return d[port2]!=None
         # Hago DFS, BFS desde port1 y si llego a port 2 => Existe un ciclo
@@ -99,15 +99,15 @@ class Net:
         if port2.connected:
             raise Exception("Puerto_2 conectado a alguien mas")
         
-        if ciclos(port1, port2):
+        if self.has_cycles(port1, port2):
             raise Exception("Conexion innecesaria, esos puertos ya estaban cominicados.")
 
-        self.graph.add_edge(port1, port2)
+        self.graph.add_edge(port1, port2, -1)
         port1.connect()
         port2.connect()
 
         hosts_tr_lists = []
-        for host in self.host:
+        for host in self.hosts.values():
             if host.transmitting:
                 hosts_tr_lists = BFS()
                 break
