@@ -6,7 +6,7 @@ class Port:
         self.state = "reading"
         self.time = 0
         
-        self.bits_received_in_ms = []
+        self.bits_received_in_ms = -1# Ultimo bit que se leyo[]
         
     def connect(self):
         self.connected = True

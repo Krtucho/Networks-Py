@@ -154,10 +154,11 @@ class Net:
 
         if len(hosts_tr_lists) != 0:
             for host in hosts_tr_lists:
-                 host.sending = False
-                    host.pending = True
-                    host.time_to_retry = randint(1, 3)
-                    self.write_in_file_logs(self, ms=signal_time, host.port ,sending=True, collision = True)
+                host.transmitting = False
+                host.sending = False
+                host.pending = True
+                host.time_to_retry = randint(1, 3)
+                self.write_in_file_logs(self, ms=signal_time, host.port ,sending=True, collision = True)
         
 
 
@@ -167,28 +168,36 @@ class Net:
         self.graph.remove_edge(port1)
     
      
-    def update_bit_time(self, ms: int, collision: bool):
-        if self.time_to_send_next_bit == 0:
-            if len(self.bits_to_send) > 0:
-                self.time_to_send_next_bit = 10
-                self.log(f"{ms} {self.name} send {self.actual_bit} {'collision' if collision else 'ok'}")
-                self.actual_bit = self.bits_to_send.pop(0)
-            elif len(self.bits_to_send) == 0:
-                self.time_to_send_next_bit=10
-        elif self.time_to_send_next_bit > 0:
-            self.time_to_send_next_bit -= 1
-            self.log(f"{ms} {self.name} send {self.actual_bit} {'collision' if collision else 'ok'}")
+  
     
     def update(self, time, signal_time):
-         for host in hosts:
-            if host.transmitting #or (host.pending and host.time_to_send_next_bit == 0):
-                # if not collision(host):
-                # logging: bool = False
-                if host.time_to_send_next_bit == signal_time:
-                    logging = True
-                #bfs(host, True, logging)
-                BFS(host,)
-                update_bit_time(host)
+        for host in hosts:
+            if host.transmitting:
+                value_to_write = host.actual_bit if not host.time_to_retry > 0 else -1
+                BFS(host) # Voy modificando todos los cables. Escribir valor en cable, null si hay cambio
+                host.update_bit_time(time, False) #Actualizando el bit del host 
+
+
+        for host in self.hosts:
+            if host.transmitting:
+                
+        #Todos leen y si el valor es nulo no escriben, si hubo un cambio entre el valor q tenian antes escriben enn el txt
+        for host in self.hosts:
+            if host.change_detected(host.actual_bit):
+                write_in_file_log(host)
+
+        #Actualizar todos
+
+        #Hasta aca llega el update()
+
+        #  for host in hosts:
+        #     if host.transmitting #or (host.pending and host.time_to_send_next_bit == 0):
+        #         # if not collision(host):
+        #         # logging: bool = False
+        #         if host.time_to_send_next_bit == signal_time:
+        #             logging = True
+        #         #bfs(host, True, logging)
+        #         BFS(host,)
 
         # for host in self.hosts:
         #     if host.writing:
@@ -206,19 +215,11 @@ class Net:
         # for host in hosts:
         #     read_info_and_chek()
         
-        for host in self.hosts:
-            if host.transmitting:
-                #Escribir valor en cable, null si
-        #Todos leen y si el valor es nulo no escriben, si hubo un cambio entre el valor q tenian antes escriben enn el txt
-        for host in self.hosts:
-            if host.change_detected():
-                write_in_file_log(host)
-
-        #Actualizar todos
+        
 
 
 
-        self.graph.clean_edges_states()
+        # self.graph.clean_edges_states()
 
 
     def send(host:Host,data:list, time:int):#metodo que se utiliza cuando se envia a un host a enviar un conjunto de bits

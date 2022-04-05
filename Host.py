@@ -25,7 +25,8 @@ class Host(Device):
     def send_bit(self):
         pass
         
-   def change_detected()
+   def change_detected(self, bit_to_cmp: int):
+       return self.port.bits_received_in_ms == bit_to_cmp
 
     # def check_transmision(self):
     #     if self.transmitting:
@@ -37,6 +38,18 @@ class Host(Device):
     #             elif collision:
     #                 wait()
     
+    def update_bit_time(self, ms: int, collision: bool):
+        if self.time_to_send_next_bit == 0:
+            if len(self.bits_to_send) > 0:
+                self.time_to_send_next_bit = 10
+                self.log(f"{ms} {self.name} send {self.actual_bit} {'collision' if collision else 'ok'}")
+                self.actual_bit = self.bits_to_send.pop(0)
+            elif len(self.bits_to_send) == 0:
+                self.time_to_send_next_bit=10
+        elif self.time_to_send_next_bit > 0:
+            self.time_to_send_next_bit -= 1
+            self.log(f"{ms} {self.name} send {self.actual_bit} {'collision' if collision else 'ok'}")
+
     def check_read(self):
         """Escribe el bit que recibio en el archivo de logs"""
         pass
