@@ -67,6 +67,9 @@ def start(signal_time):
                 network.send(instruction.port)
         network.update(time, signal_time)
         time = time + 1
+
+    for host in network.hosts:
+        host.close_output()
         
             
 
