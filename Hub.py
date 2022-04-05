@@ -1,5 +1,5 @@
-from Port import Port
-from Device import Device
+from port import Port
+from device import Device
 
 class Hub(Device):
     def __init__(self, name, n_ports):

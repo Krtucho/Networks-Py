@@ -1,5 +1,5 @@
-from Port import Port
-from Device import Device
+from port import Port
+from device import Device
 
 class Host(Device):
     def __init__(self, name):
@@ -25,7 +25,7 @@ class Host(Device):
     def send_bit(self):
         pass
         
-   def change_detected(self, bit_to_cmp: int):
+    def change_detected(self, bit_to_cmp: int):
        return self.port.bits_received_in_ms == bit_to_cmp
 
     # def check_transmision(self):
@@ -50,7 +50,7 @@ class Host(Device):
             self.time_to_send_next_bit -= 1
             self.log(f"{ms} {self.name} send {self.actual_bit} {'collision' if collision else 'ok'}")
 
-     def write_in_file_logs(self, ms: int,port: Port,sending: bool, collision: bool):
+    def write_in_file_logs(self, ms: int,port: Port,sending: bool, collision: bool):
         bit = port.bits_received_in_ms[-1]
         state = "send" if sending else "receive"
         name = port.name

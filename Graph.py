@@ -1,6 +1,6 @@
-from Device import Device
-from Port import Port
-from Hub import Hub
+from device import Device
+from port import Port
+from hub import Hub
 
 class Graph:
     def init(self):
