@@ -7,13 +7,14 @@ class Graph:
         self.V = []
         self.E = {}
         
-    def add_vertex(self, u: Device):
+    def add_vertex(self, u: Device)-> None:
         self.V.append(u)
         if isinstance(u, Hub):
-            s = u.s
-            for item in u.ports.values:
+            s = u.s # Vertice h_0...El vertice que estara en el centro
+            hub_ports: dict = u.ports # Puertos del Hub
+            for item in hub_ports:
                 if item != s:
-                    self.add_edge(s, item, -2)
+                    self.add_edge(s, item, -1)
         
     def search_port(self, port)-> Port:
         return Port("aaa")
