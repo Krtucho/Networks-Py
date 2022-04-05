@@ -21,9 +21,9 @@ class Graph:
         
         
     def add_edge(self, u: Port, v: Port, w: int): # w es el valor de la arista
-        if self.E[u] == None:
+        if not self.E.__contains__(u):
             self.E[u] = []
-        if self.E[v] == None:
+        if not self.E.__contains__(v):
             self.E[v] = []
         
         self.E[u].append((v, w))
