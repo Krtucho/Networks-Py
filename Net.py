@@ -35,16 +35,7 @@ class Net:
     def hub_center(port:Port):#devuelve true si este puerto es el puerto ficticio que queda en el centro del hub y se nombra "name"_0
         return port.name[len(port.name)-1]=='0' and port.name[len(port.name)-2]=='_'
 
-    #  def write_in_file_logs(self, ms: int,port: Port,sending: bool, collision: bool):
-    #         bit = port.bits_received_in_ms[-1]
-    #     state = "send" if sending else "receive"
-    #     name = port.name
-    #     ok = "collision" if collision else "ok"
-    #     if sending:
-    #         self.write_msg_in_file(f"{ms} {name} {state} {bit} {ok}")
-    #     elif not sending:
-    #         self.write_msg_in_file(f"{ms} {name} {state} {bit}")
-
+   
 
 
 
@@ -184,7 +175,7 @@ class Net:
         #Todos leen y si el valor es nulo no escriben, si hubo un cambio entre el valor q tenian antes escriben enn el txt
         for host in self.hosts:
             if host.change_detected(host.actual_bit):
-                write_in_file_log(host)
+                host.write_in_file_logs(time, host.port, False, False)
 
         #Actualizar todos
 

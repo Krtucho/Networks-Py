@@ -50,6 +50,17 @@ class Host(Device):
             self.time_to_send_next_bit -= 1
             self.log(f"{ms} {self.name} send {self.actual_bit} {'collision' if collision else 'ok'}")
 
+     def write_in_file_logs(self, ms: int,port: Port,sending: bool, collision: bool):
+        bit = port.bits_received_in_ms[-1]
+        state = "send" if sending else "receive"
+        name = port.name
+        ok = "collision" if collision else "ok"
+        if sending:
+            self.write_msg_in_file(f"{ms} {name} {state} {bit} {ok}")
+        elif not sending:
+            self.write_msg_in_file(f"{ms} {name} {state} {bit}")
+
+
     def check_read(self):
         """Escribe el bit que recibio en el archivo de logs"""
         pass
