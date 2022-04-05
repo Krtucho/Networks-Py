@@ -25,7 +25,7 @@ class Host(Device):
     def send_bit(self):
         pass
         
-   
+   def change_detected()
 
     # def check_transmision(self):
     #     if self.transmitting:
