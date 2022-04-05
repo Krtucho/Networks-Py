@@ -18,6 +18,7 @@ class Net:
     def create_hub(self, name, n_ports):
         hub = Hub(name, n_ports)
         self.graph.add_vertex(hub)
+        self.hubs[hub.name] = hub
         # self.hubs.
     
 #region Utiles
@@ -72,10 +73,18 @@ class Net:
 
 
 
-    
-
     def has_cycles(self, port1, port2):
-        return False
+        #return False
+        host1= self.my_device(port1)
+        host2= self.my_device(port2)
+        host2_transmitting=host2.transmitting
+        host2.transmitting=True
+        collisions=BFS(host1,0,0,True)
+        host2.transmitting=host2_transmitting
+        return collisions.index(host2) != -1
+
+    # def has_cycles(self, port1, port2):
+    #     return False
         # d=BFS(port1,0)
         # return d[port2]!=None
         # Hago DFS, BFS desde port1 y si llego a port 2 => Existe un ciclo
@@ -127,11 +136,15 @@ class Net:
         port1 = self.graph.search_port(port)
         self.graph.remove_edge(port1)
     
-     
+    def is_finished(self):
+        for host in self.hosts.values():
+             if host.pending or host.transmitting or host.writing:
+                 return False
+        return True
   
     
     def update(self, time, signal_time):
-        for host in hosts:
+        for host in self.hosts.values():
             if host.transmitting:
                 value_to_write = host.actual_bit if not host.time_to_retry > 0 else -1
                 BFS(host) # Voy modificando todos los cables. Escribir valor en cable, null si hay cambio
@@ -142,7 +155,7 @@ class Net:
         #     if host.transmitting:
                 
         #Todos leen y si el valor es nulo no escriben, si hubo un cambio entre el valor q tenian antes escriben enn el txt
-        for host in self.hosts:
+        for host in self.hosts.values():
             if host.change_detected(host.actual_bit):
                 host.write_in_file_logs(time, host.port, False, False)
 
@@ -195,7 +208,7 @@ class Net:
 
 
 
-    def send_many(send_list: list, time:int):
+    def send_many(self, send_list: list, time:int):
         host_sending = []
         for instruction in send_list:
             host = my_device(instruction[2])
@@ -204,12 +217,12 @@ class Net:
             host.bits_to_send += bits
             host_sending.append(host)
         
-        for  host in self.host:
+        for host in self.hosts.values():
             if host.pending:
                 host.pending = False
                 host.writing = True
                 host_sending.append(host)
-        while len(host_sending>0):
+        while len(host_sending) > 0:
             target = host_sending[0] if len(host_sending) > 0 else None
             #if target != None:
             collisions = BFS(target, target.bits_to_send[0],time,True)

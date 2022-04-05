@@ -33,10 +33,16 @@ def get_inst(lists: list, time: int)->list:
         if int(lists[i][0]) == time and lists[i][1] == "send":
             send_list.append(lists[i])
             indexes.append(i)
-            
+     
+    for i in range(0, len(lists)):
+        
+           
     # temp = [item for item in lists if item[0] == time and item[1] ==  "create"]
     return result, send_list
     
+    
+def is_finished(network:Net):
+    return network.is_finished()
 
 def start(signal_time):
     """Metodo principal"""
@@ -73,12 +79,14 @@ def start(signal_time):
             # elif instruction.type == "send":
             #     network.send(Net.my_device(instruction.port),instruction.bits, time)#arreglar
             instruction.pop(0)
-        network.send_many(send_list)
+        network.send_many(send_list, time)
         
         network.update(time, signal_time)
         time = time + 1
+        
+        finished = len(lists) and is_finished(network)
 
-    for host in network.hosts:
+    for host in network.hosts.values():
         host.close_output()
         
             
