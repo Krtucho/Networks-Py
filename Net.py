@@ -23,23 +23,23 @@ class Net:
     
 #region Utiles
     
-    def my_device(port:Port):
+    def my_device(self,port:Port):
         name:str=""
         for s in port.name:
             if s == "_":
                 break
             name+=s
-        if(hosts.__contains__(name)):
-            return hosts[name]
-        if(hubs.__contains__(name)):
-            return hubs[name]
+        if(self.hosts.__contains__(name)):
+            return self.hosts[name]
+        if(self.hubs.__contains__(name)):
+            return self.hubs[name]
 
     def hub_center(port:Port):#devuelve true si este puerto es el puerto ficticio que queda en el centro del hub y se nombra "name"_0
         return port.name[len(port.name)-1]=='0' and port.name[len(port.name)-2]=='_'
 
-    def BFS(s:Host,bit:int,time:int,checking:bool):
+    def BFS(self, s:Host,bit:int,time:int,checking:bool):
         queue:list=[]
-        hub:bool=false #indica si el ultimo puerto en el que estuve era de un hub(solo se utiliza si se esta transmitiendo)
+        hub:bool=False #indica si el ultimo puerto en el que estuve era de un hub(solo se utiliza si se esta transmitiendo)
         queue.append(s.port)
         collisions:list=[]
         while len(queue)>0:
@@ -52,15 +52,17 @@ class Net:
                     if hub_center(u[0]):
                         sending=True#si mi antecesor es el centro del hub, entonces soy un puerto de salida de este
                     
-                    if len(my_device(v[0]).bits_received_in_ms)==0:#si no esta en momento de escribir pero se sabe que este dispositivo se agrego recientemente porque tiene su lista de bits recibidos vacia
-                        v[0].read_bit(s.actual_bit)#se agrega a la lista de los valores annadidos ahora el bit que se esta pasando
-                        actual_device.write_in_file_logs(f"{time} {v[0].name} receive {bit}")# se manda a escribir al hub que le llega o recibe el bit correspondiente
-
                     v[1]=bit #se escribe el bit en el cable
                     actual_device = my_device(v[0])
                     if isinstance(actual_device,Hub):#si es un hub se escribe la informacion que está enviando 
                         send_text = "send" if sending else "receive"
                         actual_device.write_in_file_logs(f"{time} {v[0].name} {send_text} {str(bit)}")# se manda a escribir al hub que le llega o recibe el bit correspondiente
+                        
+                        if len(my_device(v[0]).bits_received_in_ms)==0:#si no esta en momento de escribir pero se sabe que este dispositivo se agrego recientemente porque tiene su lista de bits recibidos vacia
+                            v[0].read_bit(s.actual_bit)#se agrega a la lista de los valores annadidos ahora el bit que se esta pasando
+                            actual_device.write_in_file_logs(f"{time} {v[0].name} receive {bit}")# se manda a escribir al hub que le llega o recibe el bit correspondiente
+
+                        
                 else:#o sea es un bfs para detectar colisiones
                     actual_device = my_device(v[0])
                     if isinstance(actual_device,Host):#si es un host se busca si esta enviando o transmitiendo para detectar la colision
@@ -79,7 +81,7 @@ class Net:
         host2= self.my_device(port2)
         host2_transmitting=host2.transmitting
         host2.transmitting=True
-        collisions=BFS(host1,0,0,True)
+        collisions=self.BFS(host1,0,0,True)
         host2.transmitting=host2_transmitting
         return collisions.index(host2) != -1
 
@@ -223,21 +225,23 @@ class Net:
                 host.writing = True
                 host_sending.append(host)
         while len(host_sending) > 0:
-            target = host_sending[0] if len(host_sending) > 0 else None
+            target = host_sending[0]# if len(host_sending) > 0 else None
             #if target != None:
             collisions = BFS(target, target.bits_to_send[0],time,True)
             #cuando este vacia la lista de colisiones hacer send con target 
             # en caso de no estar vacia poner a todos en pendiente(target+pendientes)
             if len(collisions) > 0:
-                for i in collisions:                    
+                for host in collisions:                    
                     index=host_sending.index(host)
-                    if index!=-1:
+                    if host.transmitting:
+                        continue
+                    if index!=-1:  #ver caso de los que estan transmitiendo, en este caso no hacerles nada poner un if para ellos
                         host_sending.pop(index)
                         host.pending = True
                         host.writing =  False
                         host.transmitting = False
             else: 
-                send(target)
+                send(target,time)
             host_sending.pop(0)
 
 

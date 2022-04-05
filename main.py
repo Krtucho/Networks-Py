@@ -17,26 +17,57 @@ def create_device(type="host", name="", n_ports=1):
 def get_inst(lists: list, time: int)->list:
     result = []
     send_list = []
-    indexes = []
-    for i in range(0, len(lists)):
-        # temp_list = lists[i]
-        # print(temp_list)
-        if int(lists[i][0]) == time and lists[i][1] == "create" :
-            result.append(lists[i])
-            indexes.append(i)
-    for i in range(0, len(lists)):
-        if int(lists[i][0]) == time and lists[i][1] == "connect" or lists[i][1] == "disconnect":
-            result.append(lists[i])
-            indexes.append(i)
+    # indexes = []
+    # for i in range(0, len(lists)):
+    #     # temp_list = lists[i]
+    #     # print(temp_list)
+    #     if int(lists[i][0]) == time and lists[i][1] == "create" :
+    #         result.append(lists[i])
+    #         indexes.append(i)
+    # for i in range(0, len(lists)):
+    #     if int(lists[i][0]) == time and lists[i][1] == "connect" or lists[i][1] == "disconnect":
+    #         result.append(lists[i])
+    #         indexes.append(i)
             
-    for i in range(0, len(lists)):
-        if int(lists[i][0]) == time and lists[i][1] == "send":
-            send_list.append(lists[i])
-            indexes.append(i)
+    # for i in range(0, len(lists)):
+    #     if int(lists[i][0]) == time and lists[i][1] == "send":
+    #         send_list.append(lists[i])
+    #         indexes.append(i)
      
-    for i in range(0, len(lists)):
-        
-           
+    for item in lists:
+        if int(item[0]) == time and item[1] == "create" :
+            result.append(item)
+
+            
+    for item in lists:
+        if int(item[0]) == time and item[1] == "connect" or item[1] == "disconnect":
+            result.append(item)
+            
+    for item in lists:
+        if int(item[0]) == time and item[1] == "send":
+            send_list.append(item)
+            
+    for item in result:
+        if lists.__contains__(item):
+            lists.remove(item)
+            
+    for item in send_list:
+        if lists.__contains__(item):
+            lists.remove(item)
+            
+    #         indexes.append(i)
+            
+    #         indexes.append(i)
+    #         # temp_list = lists[i]
+    #     # print(temp_list)
+    #     if int(lists[i][0]) == time and lists[i][1] == "create" :
+    #         result.append(lists[i])
+    #         indexes.append(i)
+     
+    # result.remove()
+    # result = [item for item in result if not int(item[0]) == time]
+    # for i in indexes:
+    #     lists.pop(i)       
     # temp = [item for item in lists if item[0] == time and item[1] ==  "create"]
     return result, send_list
     

@@ -11,7 +11,7 @@ class Hub(Device):
         self.s = self.ports[f"{self.name}_{0}"]
         
         for i in [1, int(n_ports)+1]:
-            temp_name = f"{self.name}_i"
+            temp_name = f"{self.name}_{str(i)}"
             self.ports[temp_name] = Port(temp_name)
             
     def read_bit(self, bit, port):

@@ -15,10 +15,26 @@ class Graph:
             for item in hub_ports:
                 if item != s:
                     self.add_edge(s, item, -1)
-        
-    def search_port(self, port)-> Port:
-        return Port("aaa")
-        
+     
+    def extract_name(self, port_name:str):
+        device_name = port_name.split("_")[0]
+        return device_name
+        # index = 0
+        # for i in range(0, len(port_name)):
+        #     if port_name[i] != "_":
+                
+       
+    def search_port(self, port_name: str)-> Port:
+        target = self.extract_name(port_name)
+        for vertex in self.V:
+            if vertex.name == target:
+                if isinstance(vertex, Hub):
+                    # hub_vertex = vertex.ports
+                    for port in vertex.ports.values():
+                        if port.name == port_name:
+                            return port
+                else:
+                    return vertex.port
         
     def add_edge(self, u: Port, v: Port, w: int): # w es el valor de la arista
         if not self.E.__contains__(u):
