@@ -58,20 +58,21 @@ def start(signal_time):
         # while actual[0] == 
         #     actual = lists[index]
         instruction, send_list = get_inst(lists, time)
-        
+        print(len(instruction))
         while len(instruction) > 0:
-            
-            if instruction.type == "create":
-                if "host":
-                    network.create_host(list[3])
-                elif "hub":
-                    network.create_hub(list[3],list[4])
-            elif instruction.type == "connect":
-                network.connect(instruction.port1, instruction.port2)
-            elif instruction.type == "disconnect":
-                network.disconnect(instruction.port)
+            actual_inst = instruction[0]
+            if actual_inst[1] == "create":
+                if  actual_inst[2] == "host":
+                    network.create_host(actual_inst[3])
+                elif  actual_inst[2] == "hub":
+                    network.create_hub(actual_inst[3],actual_inst[4])
+            elif actual_inst[1] == "connect":
+                network.connect(actual_inst[2], actual_inst[3])
+            elif actual_inst[1] == "disconnect":
+                network.disconnect(actual_inst[2])
             # elif instruction.type == "send":
             #     network.send(Net.my_device(instruction.port),instruction.bits, time)#arreglar
+            instruction.pop(0)
         network.send_many(send_list)
         
         network.update(time, signal_time)
@@ -81,7 +82,7 @@ def start(signal_time):
         host.close_output()
         
             
-
+    items.close()
 
 
 
