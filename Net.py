@@ -75,8 +75,9 @@ class Net:
     
 
     def ciclos(self, port1, port2):
-        d=BFS(port1,0)
-        return d[port2]!=None
+        return True
+        # d=BFS(port1,0)
+        # return d[port2]!=None
         # Hago DFS, BFS desde port1 y si llego a port 2 => Existe un ciclo
                            
 
