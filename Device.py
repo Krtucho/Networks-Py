@@ -1,7 +1,9 @@
 class Device:
-    def __init__(self, name = "random")-> None:
+    def __init__(self, name = "random", n_ports=1)-> None:
         self.name = name # Nombre del dispositivo
         self._output = open(f'output/{name}.txt', 'w') # Archivo de salida en la que se guardaran los logs
+        self.ports:dict = {}
+        self.n_ports = n_ports
     
     def show_port_name(self) -> None: # 
         pass

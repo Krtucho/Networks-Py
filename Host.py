@@ -5,7 +5,7 @@ class Host(Device):
     def __init__(self, name):
         super().__init__(name)
         self.port = Port(f"{self.name}_1")
-        
+        self.ports[0] = self.port
         self.transmitting = False # Si se encuentra transmitiendo en este instante
         self.time_to_send_next_bit = 10 # Tiempo restante para enviar el siguiente bit de la lista bits_to_send
         self.writing = False    # Esta escribiendo en este instante

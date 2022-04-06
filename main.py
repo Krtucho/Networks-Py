@@ -104,7 +104,7 @@ def start(signal_time):
                 elif  actual_inst[2] == "hub":
                     network.create_hub(actual_inst[3],actual_inst[4])
             elif actual_inst[1] == "connect":
-                network.connect(actual_inst[2], actual_inst[3])
+                network.connect(actual_inst[2], actual_inst[3], time)
             elif actual_inst[1] == "disconnect":
                 network.disconnect(actual_inst[2])
             # elif instruction.type == "send":
@@ -115,7 +115,7 @@ def start(signal_time):
         network.update(time, signal_time)
         time = time + 1
         
-        finished = len(lists) and is_finished(network)
+        finished = not len(lists) and is_finished(network)
 
     for host in network.hosts.values():
         host.close_output()
