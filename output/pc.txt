@@ -1,1 +1,4 @@
 2 pc_1 send 1 ok
+12 pc_1 send 0 ok
+22 pc_1 send 0 ok
+32 pc_1 send 0 ok

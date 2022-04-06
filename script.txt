@@ -5,4 +5,4 @@
 1 connect pco_1 h_3
 2 send pc_1 1000
 3 send pco_1 100
-4 disconnect pco_1
+4 disconnect h_1
