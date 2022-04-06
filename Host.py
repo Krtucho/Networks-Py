@@ -2,7 +2,7 @@ from port import Port
 from device import Device
 
 class Host(Device):
-    def __init__(self, name):
+    def __init__(self, name, signal_time=10):
         super().__init__(name)
         self.port = Port(f"{self.name}_1")
         self.ports[0] = self.port
@@ -13,8 +13,9 @@ class Host(Device):
         self.time_to_retry = 0  # Tiempo necesario para reintentar enviar
         self.pending = False    # Si el host esta intentando reenviar alguna informacion que no puedo enviarla debido a una colision o un a desconexion
         self.bits_to_send = []  # Bits a enviar
-        self.actual_bit = 0     # Bit que se esta enviando actualmente
+        self.actual_bit = -1     # Bit que se esta enviando actualmente
 
+        self.signal_time = signal_time
 
     def read_bit(self, bit, port=1):
         self.port.read_bit(bit)
@@ -26,7 +27,14 @@ class Host(Device):
         pass
         
     def change_detected(self, bit_to_cmp: int):
-       return self.port.bits_received_in_ms == bit_to_cmp
+        change:bool = False
+        if bit_to_cmp == -1: # S
+            change = False
+        else:
+            change = not (self.port.bits_received_in_ms == bit_to_cmp)
+            
+        self.port.bits_received_in_ms = bit_to_cmp
+        return change
 
     # def check_transmision(self):
     #     if self.transmitting:
@@ -40,20 +48,31 @@ class Host(Device):
     
     def update_bit_time(self, ms: int, collision: bool):
         if self.time_to_send_next_bit == 0:
-            if len(self.bits_to_send) > 0:
+            #if len(self.bits_to_send) > 0: # Si aun faltan bits por enviar resetea el tiempo restante de envio y extrae el primer bit de la lista que fue la que se envio
+            self.bits_to_send.pop(0) #  extrae el primer bit de la lista que fue la que se envio
+            if len(self.bits_to_send) != 0: # Si solamente queda
+                self.actual_bit = self.bits_to_send[0] # actualiza el bit que se esta enviando actualmente
+                #self.time_to_send_next_bit = self.signal_time
+                self.write_msg_in_file(f"{ms} {self.name} send {self.actual_bit} {'collision' if collision else 'ok'}")
+                self.time_to_send_next_bit = self.signal_time
+            else:
+                self.pending = False
+                self.writing = False
+                self.transmitting = False
+                self.actual_bit = -1
                 self.time_to_send_next_bit = 10
-                self.log(f"{ms} {self.name} send {self.actual_bit} {'collision' if collision else 'ok'}")
-                self.actual_bit = self.bits_to_send.pop(0)
-            elif len(self.bits_to_send) == 0:
-                self.time_to_send_next_bit=10
         elif self.time_to_send_next_bit > 0:
             self.time_to_send_next_bit -= 1
-            self.log(f"{ms} {self.name} send {self.actual_bit} {'collision' if collision else 'ok'}")
+        #     self.write_msg_in_file(f"{ms} {self.name} send {self.actual_bit} {'collision' if collision else 'ok'}")
 
-    def write_in_file_logs(self, ms: int,port: Port,sending: bool, collision: bool):
-        bit = port.bits_received_in_ms[-1]
+    def write_in_file_logs(self, ms: int, sending: bool, collision: bool):
+        bit = -1
+        if sending:
+            bit = self.actual_bit
+        else:
+            bit = self.port.bits_received_in_ms
         state = "send" if sending else "receive"
-        name = port.name
+        name = self.port.name
         ok = "collision" if collision else "ok"
         if sending:
             self.write_msg_in_file(f"{ms} {name} {state} {bit} {ok}")

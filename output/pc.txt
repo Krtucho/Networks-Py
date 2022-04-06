@@ -1,0 +1,2 @@
+2 pc_1 send 1 ok
+12 pc send 0 ok

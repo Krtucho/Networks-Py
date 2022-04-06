@@ -45,7 +45,20 @@ class Graph:
         
         self.E[u].append([v, w])
         self.E[v].append([u, w])
-        
+    
+    def edit_edge_value(self, u: Port, v: Port, w: int):
+        if not self.E.__contains__(u):
+            self.E[u] = []
+        if not self.E.__contains__(v):
+            self.E[v] = []
+            
+        for s in self.E[u]:
+            if s[0]==v:
+                s[1]=w
+        for s in self.E[v]:
+            if s[0]==u:
+                s[1]=w
+    
     def remove_edge(self, u: Port):
         target = None #[v for v in self.E[u] if v != s]
         temp_list: list = self.E[u]

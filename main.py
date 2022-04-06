@@ -95,7 +95,7 @@ def start(signal_time):
         # while actual[0] == 
         #     actual = lists[index]
         instruction, send_list = get_inst(lists, time)
-        print(len(instruction))
+        print(time)
         while len(instruction) > 0:
             actual_inst = instruction[0]
             if actual_inst[1] == "create":
@@ -110,6 +110,8 @@ def start(signal_time):
             # elif instruction.type == "send":
             #     network.send(Net.my_device(instruction.port),instruction.bits, time)#arreglar
             instruction.pop(0)
+            
+            
         network.send_many(send_list, time)
         
         network.update(time, signal_time)
@@ -117,8 +119,8 @@ def start(signal_time):
         
         finished = not len(lists) and is_finished(network)
 
-    for host in network.hosts.values():
-        host.close_output()
+    # for host in network.hosts.values():
+    #     host.close_output()
         
             
     items.close()

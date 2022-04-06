@@ -50,7 +50,9 @@ class Net:
         visited[s] = True
         while len(queue)>0:
             u=queue.pop(0)
-            hub= isinstance(self.my_device(u),Hub)
+            #hub= isinstance(self.my_device(u),Hub)
+            if not self.graph.E.__contains__(u): # Quitar x si acaso
+                continue
             for v in self.graph.E[u]:
                 if visited.__contains__(v[0]):
                     continue
@@ -59,13 +61,14 @@ class Net:
                     sending:bool=False#sirve para indicarle a un hub si por el puerto actual se envia, es falso si se esta entrando la informacion por este puerto
                     if self.hub_center(u):
                         sending=True#si mi antecesor es el centro del hub, entonces soy un puerto de salida de este
-                    
-                    v[1]=bit #se escribe el bit en el cable
-                    
+                    change = v[1]!=bit                    
+                    #v[1]=bit #se escribe el bit en el cable
+                    self.graph.edit_edge_value(u,v[0],bit)
                     actual_device = self.my_device(v[0])
                     if isinstance(actual_device,Hub):#si es un hub se escribe la informacion que está enviando 
                         send_text = "send" if sending else "receive"
-                        actual_device.write_msg_in_file(f"{time} {v[0].name} {send_text} {str(bit)}")# se manda a escribir al hub que le llega o recibe el bit correspondiente
+                        if not self.hub_center(v[0]) and bit!=-1 and change:
+                            actual_device.write_msg_in_file(f"{time} {v[0].name} {send_text} {str(bit)}")# se manda a escribir al hub que le llega o recibe el bit correspondiente
                         
                         # if len(self.my_device(v[0]).bits_received_in_ms)==0:#si no esta en momento de escribir pero se sabe que este dispositivo se agrego recientemente porque tiene su lista de bits recibidos vacia
                         #     v[0].read_bit(s.actual_bit)#se agrega a la lista de los valores annadidos ahora el bit que se esta pasando
@@ -79,6 +82,7 @@ class Net:
                         if actual_device.writing or actual_device.transmitting:
                             collisions.append(actual_device)
                 visited[v[0]]=True
+                
                 queue.append(v[0])    
         return collisions, ports_tree
 
@@ -103,12 +107,13 @@ class Net:
 
 #endregion
 
-    def set_pending_state(self, host:Host, time):
-        host.transmitting = False
-        host.sending = False
-        host.pending = True
-        host.time_to_retry = random.randint(1, 3)
-        self.write_in_file_logs(time, host.port ,sending=True, collision = True)
+    def set_state(self, host:Host, time, transmitting=False, writing=False, pending=False, collision=False):# Para cambiar el estado de un host a escribiendo, transmitiendo o pendiente
+        host.transmitting = transmitting
+        host.writing = writing
+        host.pending = pending
+        if collision:
+            host.time_to_retry = random.randint(1, 3)
+        host.write_in_file_logs(time, sending=True, collision=collision)
 
     def connect(self, port1_name, port2_name, time):
         
@@ -137,9 +142,9 @@ class Net:
             if host.transmitting:
                 hosts_tr_lists,p = self.BFS(host.port,0,time,True)
                 if len(hosts_tr_lists)>0:
-                    self.set_pending_state(time, host)
+                    self.set_state(time, host, pending=True)
                     for coll_host in hosts_tr_lists:
-                        self.set_pending_state(time, coll_host)
+                        self.set_state(time, coll_host, pending=True)
                     break
 
         
@@ -161,21 +166,39 @@ class Net:
   
     
     def update(self, time, signal_time):
+        host_transmitting = []
+        
         for host in self.hosts.values():
             if host.transmitting:
-                value_to_write = host.actual_bit if not host.time_to_retry > 0 else -1
-                self.BFS(host.port, host.actual_bit, time, False) # Voy modificando todos los cables. Escribir valor en cable, null si hay cambio
+                host_transmitting.append(host)
+                # value_to_write = host.actual_bit if not host.time_to_retry > 0 else -1
+                # self.BFS(host.port, value_to_write 
+                #          #host.actual_bit
+                #          , time, False) # Voy modificando todos los cables. Escribir valor en cable, null si hay cambio
+                if host.time_to_send_next_bit == 0:# and len(host.bits_to_send) == 0:
+                    self.BFS(host.port, -1, time, False)
                 host.update_bit_time(time, False) #Actualizando el bit del host 
-
+                
+                    
 
         # for host in self.hosts:
         #     if host.transmitting:
-                
+        
         #Todos leen y si el valor es nulo no escriben, si hubo un cambio entre el valor q tenian antes escriben enn el txt
         for host in self.hosts.values():
-            if host.change_detected(host.actual_bit):
-                host.write_in_file_logs(time, host.port, False, False)
+            if not host.transmitting:
+                if self.graph.E.__contains__(host.port):
+                    if host.change_detected(self.graph.E[host.port][0][1]):
+                        host.write_in_file_logs(time, False, False)
 
+        for host in host_transmitting:
+                value_to_write = host.actual_bit if not host.time_to_retry > 0 else -1
+                self.BFS(host.port, value_to_write 
+                         #host.actual_bit
+                         , time, False) # Voy modificando todos los cables. Escribir valor en cable, null si hay cambio
+                # host.update_bit_time(time, False) #Actualizando el bit del host 
+                # if finished:
+                #     self.BFS(host.port, -1, time, False)
         #Actualizar todos
 
         #Hasta aca llega el update()
@@ -226,6 +249,9 @@ class Net:
     def send(self, host:Host, time:int):#metodo que se utiliza cuando se envia a un host a enviar un conjunto de bits
         #host.send(data,time)
         host.actual_bit=host.bits_to_send[0]
+        self.set_state(host, time, transmitting=True)
+        host.time_to_send_next_bit = self.signal_time
+        
         #send_bit(host,time)
         self.BFS(host.port,host.actual_bit,time,False)
 
@@ -251,14 +277,14 @@ class Net:
             #cuando este vacia la lista de colisiones hacer send con target 
             # en caso de no estar vacia poner a todos en pendiente(target+pendientes)
             if len(collisions) > 0:
-                self.set_pending_state(target, time)
+                self.set_state(target, time, pending=True, collision=True)
                 for host in collisions:                    
                     index=host_sending.index(host)
                     if host.transmitting:
                         continue
                     if index!=-1:  #ver caso de los que estan transmitiendo, en este caso no hacerles nada poner un if para ellos
                         host_sending.pop(index)
-                        self.set_pending_state(host, time)
+                        self.set_state(host, time, pending=True, collision=True)
                         # host.pending = True
                         # host.writing =  False
                         # host.transmitting = False
