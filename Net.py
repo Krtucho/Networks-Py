@@ -69,6 +69,10 @@ class Net:
                         send_text = "send" if sending else "receive"
                         if not self.hub_center(v[0]) and bit!=-1 and change:
                             actual_device.write_msg_in_file(f"{time} {v[0].name} {send_text} {str(bit)}")# se manda a escribir al hub que le llega o recibe el bit correspondiente
+                    if isinstance(actual_device,Host) and bit !=-1 and change:
+                        send_text="receive"
+                        actual_device.write_msg_in_file(f"{time} {v[0].name} {send_text} {str(bit)}")# se manda a escribir al hub que le llega o recibe el bit correspondiente
+
                         
                         # if len(self.my_device(v[0]).bits_received_in_ms)==0:#si no esta en momento de escribir pero se sabe que este dispositivo se agrego recientemente porque tiene su lista de bits recibidos vacia
                         #     v[0].read_bit(s.actual_bit)#se agrega a la lista de los valores annadidos ahora el bit que se esta pasando
@@ -113,6 +117,7 @@ class Net:
         host.pending = pending
         if collision:
             host.time_to_retry = random.randint(1, 3)
+            host.actual_bit=host.bits_to_send[0]
         host.write_in_file_logs(time, sending=True, collision=collision)
 
     def connect(self, port1_name, port2_name, time):
@@ -185,11 +190,12 @@ class Net:
         #     if host.transmitting:
         
         #Todos leen y si el valor es nulo no escriben, si hubo un cambio entre el valor q tenian antes escriben enn el txt
-        for host in self.hosts.values():
-            if not host.transmitting:
-                if self.graph.E.__contains__(host.port):
-                    if host.change_detected(self.graph.E[host.port][0][1]):
-                        host.write_in_file_logs(time, False, False)
+        # Si algo no funciona....descomentar
+        # for host in self.hosts.values():
+        #     if not host.transmitting:
+        #         if self.graph.E.__contains__(host.port):
+        #             if host.change_detected(self.graph.E[host.port][0][1]):
+        #                 host.write_in_file_logs(time, False, False)
 
         for host in host_transmitting:
                 value_to_write = host.actual_bit if not host.time_to_retry > 0 else -1
@@ -267,9 +273,11 @@ class Net:
         
         for host in self.hosts.values():
             if host.pending:
-                host.pending = False
-                host.writing = True
-                host_sending.append(host)
+                host.time_to_retry -= 1
+                if host.time_to_retry == 0:
+                    host.pending = False
+                    host.writing = True
+                    host_sending.append(host)
         while len(host_sending) > 0:
             target = host_sending[0]# if len(host_sending) > 0 else None
             #if target != None:
@@ -278,7 +286,9 @@ class Net:
             # en caso de no estar vacia poner a todos en pendiente(target+pendientes)
             if len(collisions) > 0:
                 self.set_state(target, time, pending=True, collision=True)
-                for host in collisions:                    
+                for host in collisions:  
+                    if not host_sending.__contains__(host):
+                        continue                  
                     index=host_sending.index(host)
                     if host.transmitting:
                         continue

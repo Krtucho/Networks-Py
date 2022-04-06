@@ -7,7 +7,6 @@ class Host(Device):
         self.port = Port(f"{self.name}_1")
         self.ports[0] = self.port
         self.transmitting = False # Si se encuentra transmitiendo en este instante
-        self.time_to_send_next_bit = 10 # Tiempo restante para enviar el siguiente bit de la lista bits_to_send
         self.writing = False    # Esta escribiendo en este instante
         
         self.time_to_retry = 0  # Tiempo necesario para reintentar enviar
@@ -16,6 +15,9 @@ class Host(Device):
         self.actual_bit = -1     # Bit que se esta enviando actualmente
 
         self.signal_time = signal_time
+        
+        self.time_to_send_next_bit = signal_time # Tiempo restante para enviar el siguiente bit de la lista bits_to_send
+        
 
     def read_bit(self, bit, port=1):
         self.port.read_bit(bit)
@@ -53,21 +55,21 @@ class Host(Device):
             if len(self.bits_to_send) != 0: # Si solamente queda
                 self.actual_bit = self.bits_to_send[0] # actualiza el bit que se esta enviando actualmente
                 #self.time_to_send_next_bit = self.signal_time
-                self.write_msg_in_file(f"{ms} {self.name} send {self.actual_bit} {'collision' if collision else 'ok'}")
-                self.time_to_send_next_bit = self.signal_time
+                self.write_msg_in_file(f"{ms} {self.port.name} send {self.actual_bit} {'collision' if collision else 'ok'}")
+                self.time_to_send_next_bit = self.signal_time -1
             else:
                 self.pending = False
                 self.writing = False
                 self.transmitting = False
                 self.actual_bit = -1
-                self.time_to_send_next_bit = 10
+                self.time_to_send_next_bit = self.signal_time -1
         elif self.time_to_send_next_bit > 0:
             self.time_to_send_next_bit -= 1
         #     self.write_msg_in_file(f"{ms} {self.name} send {self.actual_bit} {'collision' if collision else 'ok'}")
 
     def write_in_file_logs(self, ms: int, sending: bool, collision: bool):
         bit = -1
-        if sending:
+        if sending or collision:
             bit = self.actual_bit
         else:
             bit = self.port.bits_received_in_ms
@@ -76,9 +78,12 @@ class Host(Device):
         ok = "collision" if collision else "ok"
         if sending:
             self.write_msg_in_file(f"{ms} {name} {state} {bit} {ok}")
+            print(f"{ms} {name} {state} {bit} {ok}")
+            
         elif not sending:
             self.write_msg_in_file(f"{ms} {name} {state} {bit}")
-
+            print(f"{ms} {name} {state} {bit}")
+            
 
     def check_read(self):
         """Escribe el bit que recibio en el archivo de logs"""

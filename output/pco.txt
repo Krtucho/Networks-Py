@@ -1,2 +1,2 @@
 2 pco_1 receive 1
-13 pco_1 receive 0
+3 pco_1 send 1 collision

@@ -61,11 +61,13 @@ class Graph:
     
     def remove_edge(self, u: Port):
         target = None #[v for v in self.E[u] if v != s]
+        if not self.E.__contains__(u):
+            self.E[u] = []
         temp_list: list = self.E[u]
         
         
         for v, i in enumerate(temp_list):
-            if v[1] != -2:
+            if v[1] != -1:
                 target = v[0]
                 v[0].connected = False
                 temp_list.pop(i)

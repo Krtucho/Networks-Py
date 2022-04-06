@@ -18,7 +18,7 @@ def get_inst(lists: list, time: int)->list:
     result = []
     send_list = []
     # indexes = []
-    # for i in range(0, len(lists)):
+    # # for i in range(0, len(lists)):
     #     # temp_list = lists[i]
     #     # print(temp_list)
     #     if int(lists[i][0]) == time and lists[i][1] == "create" :
@@ -40,7 +40,7 @@ def get_inst(lists: list, time: int)->list:
 
             
     for item in lists:
-        if int(item[0]) == time and item[1] == "connect" or item[1] == "disconnect":
+        if (int(item[0]) == time) and (item[1] == "connect" or item[1] == "disconnect"):
             result.append(item)
             
     for item in lists:

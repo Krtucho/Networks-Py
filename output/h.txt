@@ -2,7 +2,3 @@
 2 h_2 send 1
 2 h_3 send 1
 2 h_4 send 1
-12 h_1 receive 0
-12 h_2 send 0
-12 h_3 send 0
-12 h_4 send 0
