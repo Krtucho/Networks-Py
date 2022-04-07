@@ -1,0 +1,7 @@
+0 create hub h 4
+0 create host pc
+0 connect h_1 pc_1
+1 create host pco
+1 connect pco_1 h_3
+2 send pc_1 1000
+3 send pco_1 100
