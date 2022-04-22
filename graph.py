@@ -122,5 +122,5 @@ class Graph:
             self.E[u].remove(edge_to_remove)
         
     def clean_edges_states(self):
-        for item in E.values:
+        for item in self.E.values:
             item[1] = -1
