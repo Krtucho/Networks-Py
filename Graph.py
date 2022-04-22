@@ -20,10 +20,6 @@ class Graph:
     def extract_name(self, port_name:str):
         device_name = port_name.split("_")[0]
         return device_name
-        # index = 0
-        # for i in range(0, len(port_name)):
-        #     if port_name[i] != "_":
-                
        
     def search_port(self, port_name: str)-> Port:
         """Dado el nombre de un puerto, devuelve el puerto"""
@@ -31,14 +27,13 @@ class Graph:
         for vertex in self.V:
             if vertex.name == target:
                 if isinstance(vertex, Hub):
-                    # hub_vertex = vertex.ports
                     for port in vertex.ports.values():
                         if port.name == port_name:
                             return port
                 else:
                     return vertex.port
         
-    def add_edge(self, u: Port, v: Port, w: int): # w es el valor de la arista
+    def add_edge(self, u: Port, v: Port, w: int = -1): # w es el valor de la arista
         if not self.E.__contains__(u):
             self.E[u] = []
         if not self.E.__contains__(v):
@@ -70,10 +65,6 @@ class Graph:
         for item in self.V:
             if item.name == name:
                 return item
-        # if(self.V.__contains__(name)):
-        #     return self.hosts[name]
-        # if(self.hubs.__contains__(name)):
-        #     return self.hubs[name]
     
     def hub_center(self, port:Port):#devuelve true si este puerto es el puerto ficticio que queda en el centro del hub y se nombra "name"_0
         if isinstance(self.my_device(port),Hub):
@@ -81,20 +72,14 @@ class Graph:
         return False
     
     def remove_edge(self, u: Port):
-        target = None #[v for v in self.E[u] if v != s]
+        target = None
         if not self.E.__contains__(u):
             return#self.E[u] = []
         temp_list: list = self.E[u]
         
-        # if len(temp_list) == 0:
-        #     return
-        # target = temp_list[0][0]
         u_dev = self.my_device(u)
         
         if isinstance(u_dev, Hub):
-            # target = temp_list[0]
-            
-            # self.E.popitem(u_dev)
             edges = self.E[u]
             vertex_to_remove = None
             edge_to_remove = None
@@ -102,8 +87,6 @@ class Graph:
                 vertex_to_remove = self.my_device(edge[0])
                 if vertex_to_remove !=  None:
                     if isinstance(vertex_to_remove, Hub) and not self.hub_center(edge[0]):
-                        # edge[0] == target:
-                        # vertex_to_remove = edge[0]
                         self.E[u].remove(edge)
                         edge_to_remove = edge
                         break
@@ -119,7 +102,6 @@ class Graph:
         elif isinstance(u_dev, Host):
             if len(temp_list) > 0:
                 target = temp_list[0][0]
-            # self.E[target].remove()
             
             if target is None:
                 return
@@ -139,31 +121,6 @@ class Graph:
                     break
             self.E[u].remove(edge_to_remove)
         
-        # for i, v in enumerate(temp_list):
-        #     print(v[1])
-        #     if v[1] != -1:
-        #         target = v[0]
-        #         v[0].connected = False
-        #         temp_list.pop(i)
-                
-        #         # temp_list = self.E[v]
-        #         self.remove_edge(target)
-        #         break
-        
-  
-        
-        
-        # for v in self.E[u]:            
-        #     target = v[0]
-        #     v[0].connected = False
-        #     for s in self.E[u]:
-        #         if s[0]==v:
-        #             self.E[u].
-        #     for s in self.E[v]:
-        #         if s[0]==u:
-            
-            
-            
     def clean_edges_states(self):
-        for item in E.values:
+        for item in self.E.values:
             item[1] = -1

@@ -7,22 +7,9 @@ class Device:
         self.ports:dict = {}
         self.n_ports = n_ports
     
-    def show_port_name(self) -> None: # 
-        pass
-    
-    def read_bit(self, bit, port):
-        pass
-    
-    
-    #@staticmethod()
-    #def aaa():
-    #    pass
-    # def write_in_file_logs(self, port: Port, sending: bool):
-    #     pass
-    
     def write_msg_in_file(self, msg):
         self._output = open(self.output_name, "a")
-        self._output.write(msg+"\n") # Escribiendo mensaje(msg) en el archivo de
+        self._output.write(msg+"\n") # Escribiendo mensaje(msg) en el archivo de salida
         self._output.close()
         
     def close_output(self):
