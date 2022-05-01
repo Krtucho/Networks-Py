@@ -1,8 +1,7 @@
+from host import Host
+from hub import Hub
+from net import Net
 import sys
-from Host import Host
-from Hub import Hub
-from Net import Net
-from queue import Queue
 
 signal_time: int = 10
 
@@ -16,20 +15,34 @@ def create_device(type="host", name="", n_ports=1):
 
 def get_inst(lists: list, time: int)->list:
     result = []
-    for i in range(0, len(lists)):
-        if lists[i][0] == time and lists[i][1] == "create" :
-            result.append(lists.pop(i))
-    for i in range(0, len(lists)):
-        if lists[i][0] == time and lists[i][1] == "connect" or lists[i][1] == "disconnect":
-            result.append(lists.pop(i))
+    send_list = []
+     
+    for item in lists:
+        if int(item[0]) == time and item[1] == "create" :
+            result.append(item)
+
             
-    for i in range(0, len(lists)):
-        if lists[i][0] == time and lists[i][1] == "send":
-            result.append(lists.pop(i))
+    for item in lists:
+        if (int(item[0]) == time) and (item[1] == "connect" or item[1] == "disconnect"):
+            result.append(item)
             
-    # temp = [item for item in lists if item[0] == time and item[1] ==  "create"]
-    return result
+    for item in lists:
+        if int(item[0]) == time and item[1] == "send":
+            send_list.append(item)
+            
+    for item in result:
+        if lists.__contains__(item):
+            lists.remove(item)
+            
+    for item in send_list:
+        if lists.__contains__(item):
+            lists.remove(item)
+            
+    return result, send_list
     
+    
+def is_finished(network:Net):
+    return network.is_finished()
 
 def start(signal_time):
     """Metodo principal"""
@@ -47,31 +60,30 @@ def start(signal_time):
     network = Net(signal_time)
     
     while not finished:
-        # actual = lists[index]
-        # while actual[0] == 
-        #     actual = lists[index]
-        instruction = get_inst(lists, time)
-        
+        instruction, send_list = get_inst(lists, time)
+        print(time)
         while len(instruction) > 0:
+            actual_inst = instruction[0]
+            if actual_inst[1] == "create":
+                if  actual_inst[2] == "host":
+                    network.create_host(actual_inst[3])
+                elif  actual_inst[2] == "hub":
+                    network.create_hub(actual_inst[3],actual_inst[4])
+            elif actual_inst[1] == "connect":
+                network.connect(actual_inst[2], actual_inst[3], time)
+            elif actual_inst[1] == "disconnect":
+                network.disconnect(actual_inst[2])
+            instruction.pop(0)
             
-            if instruction.type == "create":
-                if "host":
-                    network.create_host(list[3])
-                elif "hub":
-                    network.create_hub(list[3],list[4])
-            elif instruction.type == "connect":
-                network.connect(instruction.port1, instruction.port2)
-            elif instruction.type == "disconnect":
-                network.disconnect(instruction.port)
-            elif instruction.type == "send":
-                network.send(Net.my_device(instruction.port),instruction.bits, time)#arreglar
-        network.update(time)
+            
+        network.send_many(send_list, time)
+        
+        network.update(time, signal_time)
         time = time + 1
         
-            
+        finished = not len(lists) and is_finished(network)
 
-
-
+    items.close()
 
 if __name__== '__main__':
     signal_time = 10
