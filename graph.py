@@ -2,6 +2,7 @@ from device import Device
 from port import Port
 from hub import Hub
 from host import Host
+from switch import Switch
 
 class Graph:
     def __init__(self):
@@ -68,6 +69,11 @@ class Graph:
     
     def hub_center(self, port:Port):#devuelve true si este puerto es el puerto ficticio que queda en el centro del hub y se nombra "name"_0
         if isinstance(self.my_device(port),Hub):
+            return port.name[len(port.name)-1]=='0' and port.name[len(port.name)-2]=='_'
+        return False
+
+    def switch_center(self, port:Port):#devuelve true si este puerto es el puerto ficticio que queda en el centro del hub y se nombra "name"_0
+        if isinstance(self.my_device(port),Switch):
             return port.name[len(port.name)-1]=='0' and port.name[len(port.name)-2]=='_'
         return False
     

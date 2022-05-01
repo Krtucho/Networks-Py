@@ -2,6 +2,8 @@ from graph import Graph
 from host import Host
 from hub import Hub
 from port import Port
+from switch import Switch
+
 import random
 
 class Net:

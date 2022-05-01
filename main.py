@@ -1,5 +1,6 @@
 from host import Host
 from hub import Hub
+from switch import Switch
 from net import Net
 import sys
 
@@ -11,6 +12,8 @@ def create_device(type="host", name="", n_ports=1):
         return Host(name)
     if type == "hub":
         return Hub(name)
+    if type == "switch":
+        return Switch(name)
     return None
 
 def get_inst(lists: list, time: int)->list:
