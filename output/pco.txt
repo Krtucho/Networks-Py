@@ -1,0 +1,25 @@
+2 pco_1 receive 1
+3 pco_1 send 1 collision
+5 pco_1 send 1 collision
+5 pco_1 receive 0
+8 pco_1 send 1 collision
+10 pco_1 send 1 collision
+12 pco_1 send 1 collision
+14 pco_1 send 1 collision
+15 pco_1 send 1 collision
+15 pco_1 receive 0
+16 pco_1 send 1 collision
+19 pco_1 send 1 collision
+21 pco_1 send 1 collision
+22 pco_1 send 1 collision
+23 pco_1 send 1 collision
+24 pco_1 send 1 collision
+25 pco_1 receive 0
+26 pco_1 send 1 collision
+27 pco_1 send 1 collision
+29 pco_1 send 1 collision
+30 pco_1 send 1 collision
+33 pco_1 send 1 collision
+36 pco_1 send 1 ok
+39 pco_1 send 0 ok
+49 pco_1 send 0 ok
