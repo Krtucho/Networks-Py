@@ -1,5 +1,6 @@
 from port import Port
 from device import Device
+from frame import Frame
 
 class Host(Device):
     def __init__(self, name, signal_time=10):
@@ -18,7 +19,11 @@ class Host(Device):
         
         self.time_to_send_next_bit = signal_time # Tiempo restante para enviar el siguiente bit de la lista bits_to_send
         
-        self.mac_address = ""
+        self.mac_address = "" # Direccion mac de esta pc, por el momento se tendra que asignar manualmente
+        
+        # Frames
+        self.frames_list = [] # Lista con los frames a enviar
+        self.actual_frame = -1
 
     def read_bit(self, bit, port=1):
         self.port.read_bit(bit)

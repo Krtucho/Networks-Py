@@ -13,3 +13,9 @@ class Utils:
     @staticmethod
     def bin_to_hex(bin:int)->str:
         """Convierte un numero decimal en un texto en hexadecimal"""
+        return ""
+    
+    @staticmethod
+    def hex_to_bin(hex:str)->int:
+        """Convierte un numero hexadecimal en binario"""
+        return 0

@@ -4,6 +4,8 @@ from hub import Hub
 from port import Port
 from switch import Switch
 
+from frame import Frame
+
 import random
 
 class Net:
@@ -182,13 +184,21 @@ class Net:
 
 
     def send_many(self, send_list: list, time:int):
+        """Procesa todas las instrucciones de send y de send_frame"""
         host_sending = []
-        for instruction in send_list:
-            host = self.my_device(self.graph.search_port(instruction[2]))
-            host.writing = True
-            bits = [int(bit) for bit in instruction[3]]
-            host.bits_to_send += bits
-            host_sending.append(host)
+        for instruction in send_list: # Iterando por las instrucciones de enviar en la lista que contiene al inicio las instrucciones de send y luego las de send_frame
+            if instruction[1] == "send":
+                host = self.my_device(self.graph.search_port(instruction[2]))
+                host.writing = True
+                bits = [int(bit) for bit in instruction[3]]
+                host.bits_to_send += bits
+                host_sending.append(host)
+            elif instruction[1] == "send_frame":
+                host = self.my_device(self.graph.search_port(instruction[2]))
+                host.writing = True
+                dst_mac = instruction[3]
+                parse_frame_data()
+                
         
         for host in self.hosts.values():
             if host.pending:
