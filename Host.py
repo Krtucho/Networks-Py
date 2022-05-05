@@ -18,6 +18,7 @@ class Host(Device):
         
         self.time_to_send_next_bit = signal_time # Tiempo restante para enviar el siguiente bit de la lista bits_to_send
         
+        self.mac_address = ""
 
     def read_bit(self, bit, port=1):
         self.port.read_bit(bit)

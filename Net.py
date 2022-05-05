@@ -2,6 +2,8 @@ from graph import Graph
 from host import Host
 from hub import Hub
 from port import Port
+from switch import Switch
+
 import random
 
 class Net:
@@ -22,6 +24,11 @@ class Net:
         hub = Hub(name, n_ports)    # Creando la instancia de tipo Hub
         self.graph.add_vertex(hub)  # Agregando el hub a la lista que contiene a todos los dispositivos
         self.hubs[hub.name] = hub   # Agregando el Hub al dicionario que contiene a todos los hubs
+    
+    # Mac Address
+    def set_mac(self, host: str, mac_address: str):
+        target_host:Host = self.my_device(host + "_1") # Buscando Host al que le vamos a asignar la Mac
+        target_host.mac_address = mac_address # Asignando mac
     
 #region Utiles
     
@@ -162,6 +169,8 @@ class Net:
                 value_to_write = host.actual_bit if not host.time_to_retry > 0 else -1
                 self.BFS(host.port, value_to_write, time, False) # Voy leyendo de todos los dispositivos. 
         #Actualizar todos
+        # Deteccion de errores y correctitud
+        # Si al terminar de enviar el host q esta en transmitting verificamos con el receptor y en caso de que ocurra colision volvemos a enviar la trama
 
     def send(self, host:Host, time:int):
         """metodo que se utiliza cuando se envia a un host a enviar un conjunto de bits"""
