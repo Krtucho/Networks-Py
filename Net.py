@@ -195,14 +195,14 @@ class Net:
                 host_sending.append(host)
             elif instruction[1] == "send_frame": # Creamos el Frame en el host a enviar, annadimos cada bit de la trama a enviar a los bits que tiene q enviar el host, annadimos este host a la lista de host que se encuentran enviando
                 host:Host = self.my_device(self.graph.search_port(instruction[2])) # Busco el host que commenzara a enviar
-                host.writing = True #
+                host.writing = True # Este Host esta escribiendo
                 # Added Lines
-                dst_mac = instruction[3]
+                dst_mac = instruction[3]    # Mac de destino
                 data, data_size = Frame.parse_frame_data(instruction[4],method=1)
                 host.add_frame(Frame(state="inactive", src_mac=host.mac_address, dst_mac=dst_mac, data_size=data_size,
-                                     data=data))
-                # Added Lines00
-                bits = [int(bit) for bit in instruction[3]]
+                                     data=data))    # Annadiendo Frame a lista de frames del host
+                #End Added Lines
+                bits = [int(bit) for bit in instruction[3]] # 
                 host.bits_to_send += bits
                 host_sending.append(host)
         
