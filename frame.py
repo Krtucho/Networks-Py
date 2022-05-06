@@ -15,4 +15,6 @@ class Frame:
     def parse_frame_data(data:str, method:int=1): 
         """Parsea la <data> introducida por el comando send_frame, el metodo 1 es tomar la data como los datos a enviar, el metodo 2 es obtener cada campo de la <data> justo como lo decia el pdf de la orientacion"""
         if method == 1:
-             Utils.hex_to_bin()
+            data_to_send = Utils.hex_to_bin()
+            data_size = len(data_to_send)
+            return data_to_send, data_size

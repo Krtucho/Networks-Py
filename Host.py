@@ -22,8 +22,13 @@ class Host(Device):
         self.mac_address = "" # Direccion mac de esta pc, por el momento se tendra que asignar manualmente
         
         # Frames
-        self.frames_list = [] # Lista con los frames a enviar
+        self.frames_list:list = [] # Lista con los frames a enviar
         self.actual_frame = -1
+
+    def add_frame(self, frame:Frame):
+        if len(self.frames_list) == 0:
+            self.actual_frame = 0
+        self.frames_list.append(frame)
 
     def read_bit(self, bit, port=1):
         self.port.read_bit(bit)
