@@ -184,8 +184,10 @@ class Net:
 
 
     def send_many(self, send_list: list, time:int):
-        """Procesa todas las instrucciones de send y de send_frame"""
+        """Procesa todas las instrucciones de send y de send_frame. Si el host comienza a enviar en este ms se verifica si ocurre colision, si ocurre se pone en pendiente, sino, envia.
+        Tambien se procesan todos aquellos host que estan en estado de pendiente y se ponen a enviar si no ocurre colision. Por ultimo, si algun host se encontraba transmitiendo, este continuara transmitiendo xq tiene mayor procedencia que los demas."""
         host_sending = []
+        # Hosts que comenzaran a estar en writing
         for instruction in send_list: # Iterando por las instrucciones de enviar en la lista que contiene al inicio las instrucciones de send y luego las de send_frame
             if instruction[1] == "send":
                 host = self.my_device(self.graph.search_port(instruction[2]))
@@ -205,14 +207,19 @@ class Net:
                 bits = [int(bit) for bit in instruction[3]] # 
                 host.bits_to_send += bits
                 host_sending.append(host)
-        
-        for host in self.hosts.values():
+
+        # Hosts que estaban en pending
+        for host in self.hosts.values(): # los hosts que estaban esperando para comenzar a enviar
             if host.pending:
                 host.time_to_retry -= 1
                 if host.time_to_retry == 0:
                     host.pending = False
                     host.writing = True
-                    host_sending.append(host)
+                    host_sending.append(host)   # Los sumamos a la lista de hosts que estan enviando en este ms
+          
+        # Colisiones...Primero hacemos bfs buscando todos aquellos que colisionan con cierto host que se encuentra enviando, de ser asi
+        # eliminamos de la lista de los que estan enviando a todos aquellos con los que colisiono este host, si el host se encuentra transmitiendo,
+        # le dejamos via libre          
         while len(host_sending) > 0:
             target = host_sending[0]
             collisions,port_tree = self.BFS(target.port, target.bits_to_send[0],time,True)
@@ -221,14 +228,14 @@ class Net:
             if len(collisions) > 0:
                 self.set_state(target, time, pending=True, collision=True)
                 for host in collisions:  
-                    if not host_sending.__contains__(host):
+                    if not host_sending.__contains__(host): # Si el host no esta contenido en la lista de los host que estan enviando, continua a verificar al siguiente
                         continue                  
-                    index=host_sending.index(host)
-                    if host.transmitting:
+                    index=host_sending.index(host)  # Indice del host que se envuentra enviando y colisionó.
+                    if host.transmitting:   # Si este ya estaba transmitiendo continuara con su transmision porque tiene prioridad
                         continue
                     if index!=-1:  #ver caso de los que estan transmitiendo, en este caso no hacerles nada poner un if para ellos
                         host_sending.pop(index)
                         self.set_state(host, time, pending=True, collision=True)
             else: 
-                self.send(target,time)
+                self.send(target,time) # Si no ocurrio colision, entonces mandamos a 
             host_sending.pop(0)
