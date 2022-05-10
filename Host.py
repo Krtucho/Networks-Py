@@ -26,6 +26,10 @@ class Host(Device):
         self.actual_frame = -1
         # Frames times
         self.last_updated_frame_time = 0
+        
+        # Files
+        self.data_name = f'output/{name}_data.txt'
+        self._data = open(self.data_name, 'w') # Archivo de salida en la que se guardaran los logs
 
     def add_frame(self, frame:Frame):
         if len(self.frames_list) == 0:
@@ -84,7 +88,16 @@ class Host(Device):
         """Escribe el bit que recibio en el archivo de logs"""
         pass
     
-    def save_data(self):
+    def write_data_in_file(self, frame:Frame):
+        data_to_write = self.
+    
+    def save_data(self, data_msg):
+        self._data = open(self.data_name, "a")
+        self._data.write(data_msg+"\n") # Escribiendo mensaje(msg) en el archivo de salida
+        self._data.close()
+        
+    def close_output(self):
+        self._output.close() # Cerrando archivo donde se va a escribir
         
         
     def remove_last_frame(self):
@@ -93,7 +106,7 @@ class Host(Device):
             if self.actual_frame == -1:
                 return False
             self.frames_list.pop(self.actual_frame)
-            if len(self.frames_list) <= 1:
+            if len(self.frames_list) <= 0:
                 self.actual_frame = -1
             return True
         return False
@@ -109,7 +122,7 @@ class Host(Device):
             
             if self.actual_frame == -1:
                 return False
-            if len(self.frames_list) <= 1:
+            if len(self.frames_list) <= 0:
                 self.actual_frame = -1
             return True
         return False
@@ -119,8 +132,9 @@ class Host(Device):
             return False
         if not self.can_remove_frame():
             return False
+        
         frame = self.frames_list.pop(self.actual_frame)
-        if len(self.frames_list) <= 1:
+        if len(self.frames_list) <= 0:
             self.actual_frame = -1
         if Check.check(frame):
             self.

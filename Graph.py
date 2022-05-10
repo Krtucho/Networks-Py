@@ -2,7 +2,7 @@ from device import Device
 from port import Port
 from hub import Hub
 from host import Host
-from switch import Switch
+#from switch import Switch
 
 class Graph:
     def __init__(self):
@@ -52,9 +52,9 @@ class Graph:
         for s in self.E[u]:
             if s[0]==v:
                 s[1]=w
-        for s in self.E[v]:
-            if s[0]==u:
-                s[1]=w
+        # for s in self.E[v]:
+        #     if s[0]==u:
+        #         s[1]=w
     
     def my_device(self,port:Port):
         name:str=""

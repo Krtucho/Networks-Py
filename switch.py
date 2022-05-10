@@ -16,8 +16,8 @@ class Switch(Device):
             self.ports[temp_name] = Port(temp_name)
             self.macs_ports={}#diccionario en que se indexa en una mac y devuelve el puerto por donde se alcanza
             #self.macs_for_ports[temp_name]=[]#creando un diccionario que tiene como key los nombres de los puertos y por cada uno una lista de las macs que se acceden desde ahi
-            self.frame_in_for_port={}#diccionario en el que se indexa por puerto y se llega a el frame que esta entrando por ese puerto
-            self.frame_out_for_port={}#diccionario en el que se indexa por puerto y se llega a el frame que esta saliendo por ese puerto  
+            self.frame_in_for_port={}#diccionario en el que se indexa por puerto y se obtiene el frame que esta entrando por ese puerto
+            self.frame_out_for_port={}#diccionario en el que se indexa por puerto y se obtiene el frame que esta saliendo por ese puerto  
   
     def read_bit(self, bit, port):
         self.ports[port].read_bit(bit)
@@ -38,6 +38,7 @@ class Switch(Device):
     def send_bit(self,port_0:Port,bit:int): #Cuando el bfs me envia un bit por un puerto
         frame=self.frame_in_for_port[port_0]
         end_frame=self.append_bit_to_frame(frame,bit)
+        
         
 
 

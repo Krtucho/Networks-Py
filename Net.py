@@ -163,7 +163,7 @@ class Net:
                 host_transmitting.append(host)
                 # Voy modificando todos los cables. Escribir valor en cable, null si hay cambio
                 if host.time_to_send_next_bit == 0:
-                    self.BFS(host.port, -1, time, False)
+                    self.BFS.bfs(host.port, -1, time, False)
                 host.update_bit_time(time, False) #Actualizando el bit del host 
 
         for host in host_transmitting:
@@ -179,7 +179,7 @@ class Net:
         self.set_state(host, time, transmitting=True) # Cambiamos el estado y reportamos que el host esta escribiendo 
         host.time_to_send_next_bit = self.signal_time   # Reiniciando el tiempo restante para enviar el siguiente bit
         
-        self.BFS(host.port,host.actual_bit,time,False)
+        self.BFS.bfs(host.port,host.actual_bit,time,False)
 
 
     def detect_collisions_on_hubs():#si se estan enviando varias tramas en el mismo ms
