@@ -42,8 +42,14 @@ class Utils:
         return output
     
     @staticmethod
-    def bin_to_dec(bin)->int:
-        if isinstance(bin, str):
-            bin = int(bin)
-            
-        return 0
+    def bin_to_dec(bin:str)->int:
+    	dec = 0 
+
+        for posicion, digito_string in enumerate(bin[::-1]):
+            dec += int(digito_string) * 2 ** posicion
+
+        return dec
+    
+    @staticmethod
+    def dec_to_bin(dec)->str:
+        bin = int('11101', 2)

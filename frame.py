@@ -3,7 +3,7 @@ from utils import Utils
 from cfg import SRC_MAC_START_INDEX, SRC_MAC_END_INDEX, DST_MAC_START_INDEX, DST_MAC_END_INDEX
 
 class Frame:
-    def __init__(self, state="active", src_mac="", dst_mac="", data_size=0, data="", check_method="CRC")-> None:
+    def __init__(self, state="active", src_mac="", dst_mac="", data_size=0, data="", check_method="CRC", check_bits=[])-> None:
         self.state = state # Estado actual de la trama, active si se esta transmitiendo, inactive si no se esta transmitiendo, enqueued si esta encolada, completed si se ha terminado de transmitir
         self.index = 0 # Indice actual de los bits de la trama
         self.src_mac = src_mac
@@ -11,6 +11,7 @@ class Frame:
         self.data_size = data_size
         self.data = ""
         self.check: Check = Check(check_method)
+        self.check_bits = check_bits
         self.bits = []
      
     def add_bit(self, bit:int):

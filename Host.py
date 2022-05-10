@@ -1,6 +1,6 @@
 from port import Port
 from device import Device
-from frame import Frame
+from check import Check
 
 class Host(Device):
     def __init__(self, name, signal_time=10):
@@ -24,6 +24,8 @@ class Host(Device):
         # Frames
         self.frames_list:list = [] # Lista con los frames a enviar
         self.actual_frame = -1
+        # Frames times
+        self.last_updated_frame_time = 0
 
     def add_frame(self, frame:Frame):
         if len(self.frames_list) == 0:
@@ -81,3 +83,46 @@ class Host(Device):
     def check_read(self):
         """Escribe el bit que recibio en el archivo de logs"""
         pass
+    
+    def save_data(self):
+        
+        
+    def remove_last_frame(self):
+        if self.last_updated_frame_time >= 30:
+            
+            if self.actual_frame == -1:
+                return False
+            self.frames_list.pop(self.actual_frame)
+            if len(self.frames_list) <= 1:
+                self.actual_frame = -1
+            return True
+        return False
+        # if self.actual_frame == -1:
+        #     return False
+        # if Check.check_frame_len(self.frames_list[self.actual_frame]):
+        #     self.frames_list.pop(self.actual_frame)
+        #     if len(self.frames_list) <= 1:
+        #         self.
+          
+    def can_remove_frame(self):
+        if self.last_updated_frame_time >= 30:
+            
+            if self.actual_frame == -1:
+                return False
+            if len(self.frames_list) <= 1:
+                self.actual_frame = -1
+            return True
+        return False
+                
+    def check_frame(self):
+        if self.actual_frame == -1:
+            return False
+        if not self.can_remove_frame():
+            return False
+        frame = self.frames_list.pop(self.actual_frame)
+        if len(self.frames_list) <= 1:
+            self.actual_frame = -1
+        if Check.check(frame):
+            self.
+        else:
+              
