@@ -1,6 +1,7 @@
 from port import Port
 from device import Device
 from check import Check
+from frame import Frame
 
 class Host(Device):
     def __init__(self, name, signal_time=10):
@@ -23,9 +24,9 @@ class Host(Device):
         
         # Frames
         self.frames_list:list = [] # Lista con los frames a enviar
-        self.actual_frame = -1
+        self.actual_frame = -1 # Indice del frame actual de la lista de frames_list
         # Frames times
-        self.last_updated_frame_time = 0
+        self.last_updated_frame_time = 0 # Tiempo transcurrido desde que se envio el ultimo bit
         
         # Files
         self.data_name = f'output/{name}_data.txt'
@@ -36,8 +37,14 @@ class Host(Device):
             self.actual_frame = 0
         self.frames_list.append(frame)
 
-    def read_bit(self, bit, port=1):
+    def create_frame(self, bit):
+        self.frames_list.append(Frame())
+
+    def read_bit(self, time, bit, port=1):
         self.port.read_bit(bit)
+        
+        if actual_frame == -1:
+            
     
     def change_detected(self, bit_to_cmp: int):
         change:bool = False
@@ -88,9 +95,6 @@ class Host(Device):
         """Escribe el bit que recibio en el archivo de logs"""
         pass
     
-    def write_data_in_file(self, frame:Frame):
-        data_to_write = self.
-    
     def save_data(self, data_msg):
         self._data = open(self.data_name, "a")
         self._data.write(data_msg+"\n") # Escribiendo mensaje(msg) en el archivo de salida
@@ -98,8 +102,13 @@ class Host(Device):
         
     def close_output(self):
         self._output.close() # Cerrando archivo donde se va a escribir
+    
+    def write_data_in_file(self, frame:Frame, state="OK"):
+        data_to_write = frame.get_data_bits()
         
-        
+        data_msg += "".join(data_to_write) + "" if state == "OK" else "ERROR"
+        self.save_data(data_msg)
+    
     def remove_last_frame(self):
         if self.last_updated_frame_time >= 30:
             
@@ -128,15 +137,21 @@ class Host(Device):
         return False
                 
     def check_frame(self):
+        """ """
         if self.actual_frame == -1:
             return False
         if not self.can_remove_frame():
             return False
         
-        frame = self.frames_list.pop(self.actual_frame)
+        frame:Frame = self.frames_list.pop(self.actual_frame)
         if len(self.frames_list) <= 0:
             self.actual_frame = -1
-        if Check.check(frame):
-            self.
+        dst_mac = and self.mac == frame.get_dst_mac()
+        if not self.mac == dst_mac:
+            return False
+        if Check.check(frame) and :
+            self.save_data(frame, "OK")
+            return True
         else:
-              
+            self.save_data(frame, "ERROR")
+            return True
