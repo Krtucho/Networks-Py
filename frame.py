@@ -34,15 +34,29 @@ class Frame:
     def get_data_size(self)->int:
         DATA_SIZE_START_INDEX = 32
         if index >= DATA_SIZE_START_INDEX:
-            return int("".joint(self.bits[DATA_SIZE_START_INDEX:DATA_SIZE_START_INDEX+8]))
+            # return int("".joint(self.bits[DATA_SIZE_START_INDEX:DATA_SIZE_START_INDEX+8]))
+            return self.bits[DATA_SIZE_START_INDEX:DATA_SIZE_START_INDEX+8]
         return None
         
     def get_data_check_size(self)->int:
         DATA_CHECK_START_INDEX = 40
         if index >= DATA_CHECK_START_INDEX:
-            return int("".joint(self.bits[DATA_CHECK_START_INDEX:DATA_CHECK_START_INDEX+8]))
+            # return int("".joint(self.bits[DATA_CHECK_START_INDEX:DATA_CHECK_START_INDEX+8]))
+            return self.bits[DATA_CHECK_START_INDEX:DATA_CHECK_START_INDEX+8]
         return None
         
+    def get_data_bits(self)->list:
+        DATA_START_INDEX = 48
+        if index >= DATA_START_INDEX:
+            return self.bits[DATA_START_INDEX:DATA_START_INDEX+8]
+        return None
+        
+    def get_check_bits(self)->list:
+        CHECK_START_INDEX = 48
+        if index >= CHECK_START_INDEX:
+            return self.bits[CHECK_START_INDEX:CHECK_START_INDEX+8]
+        return None
+    
     @staticmethod
     def parse_frame_data(data:str, method:int=1): 
         """Parsea la <data> introducida por el comando send_frame, el metodo 1 es tomar la data como los datos a enviar, el metodo 2 es obtener cada campo de la <data> justo como lo decia el pdf de la orientacion"""
@@ -51,7 +65,21 @@ class Frame:
             data_size = len(data_to_send)
             return data_to_send, data_size
         elif method ==2:
-            # Primeros 16 bits mac de origen
-            # 16 bits mac de destino
-            # 8 bits tamaño de los datos
+            data_bin = Utils.hex_to_bin(data)
             
+            # Primeros 16 bits mac de origen
+            src_mac = data_bin[SRC_MAC_START_INDEX:SRC_MAC_END_INDEX+1]
+            
+            # 16 bits mac de destino
+            dst_mac = data_bin[DST_MAC_START_INDEX:DST_MAC_END_INDEX+1]
+            
+            # 8 bits tamaño de los datos
+            data_size = Utils.bin_to_dec(data_bin[32:41])
+            
+            # 8 bits tamaño de datos de verificacion
+            check_size = Utils.bin_to_dec(data_bin[40:49])
+            
+            data = data_bin[48: 48+data_size]
+            
+            check_data = data_bin[48+data_size: 48+data_size+check_size]
+            return src_mac, dst_mac, data_size, check_size, data, check_data

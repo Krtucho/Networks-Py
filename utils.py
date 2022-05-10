@@ -40,3 +40,10 @@ class Utils:
             bin.append(dic_hex_bin[i])
         output = "".join(bin)
         return output
+    
+    @staticmethod
+    def bin_to_dec(bin)->int:
+        if isinstance(bin, str):
+            bin = int(bin)
+            
+        return 0
