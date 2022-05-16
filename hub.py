@@ -15,3 +15,12 @@ class Hub(Device):
             
     def read_bit(self, bit, port):
         self.ports[port].read_bit(bit)
+
+    def send_port(port_0):
+        ports_to_send:list=[]
+        for port in self.ports:
+            if not(port.name == port_0.name) and not(port.name[len(port.name-1)]=='0')and not(port.name[len(port.name-1)]=='_'):
+                ports_to_send.append(port)
+        return ports_to_send
+
+    

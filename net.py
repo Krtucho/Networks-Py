@@ -69,13 +69,22 @@ class Net:
                     #se escribe el bit en el cable
                     self.graph.edit_edge_value(u,v[0],bit)
                     actual_device = self.my_device(v[0])
-                    if isinstance(actual_device,Hub):#si es un hub se escribe la informacion que está enviando 
-                        send_text = "send" if sending else "receive"
-                        if not self.hub_center(v[0]) and bit!=-1 and change:
+
+                    if(bit!=-1 and change):
+                        if isinstance(actual_device,Hub):#si es un hub se escribe la informacion que está enviando 
+                            send_text = "send" if sending else "receive"
+                            if not self.hub_center(v[0]):
+                                actual_device.write_msg_in_file(f"{time} {v[0].name} {send_text} {str(bit)}")# se manda a escribir al hub que le llega o recibe el bit correspondiente
+                        if isinstance(actual_device,Host):
+                            send_text="receive"
                             actual_device.write_msg_in_file(f"{time} {v[0].name} {send_text} {str(bit)}")# se manda a escribir al hub que le llega o recibe el bit correspondiente
-                    if isinstance(actual_device,Host) and bit !=-1 and change:
-                        send_text="receive"
-                        actual_device.write_msg_in_file(f"{time} {v[0].name} {send_text} {str(bit)}")# se manda a escribir al hub que le llega o recibe el bit correspondiente
+                        if isinstance(actual_device,Switch):
+                            ports_to_send=actual_device.send_port(self,v[0])#pide al switch por los puertos que va a enviar
+                            queue.append([ p for p in ports_to_send])#agrega a la cola todos los puertos por los que va a enviar el switch
+
+
+                
+                
                 else:#o sea es un bfs para detectar colisiones
                     actual_device = self.my_device(v[0])
                     ports_tree.append(v[0])
@@ -209,3 +218,4 @@ class Net:
             else: 
                 self.send(target,time)
             host_sending.pop(0)
+            
