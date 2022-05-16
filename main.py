@@ -33,6 +33,10 @@ def get_inst(lists: list, time: int)->list:
         if int(item[0]) == time and item[1] == "send":
             send_list.append(item)
             
+    for item in lists:
+        if int(item[0]) == time and item[1] == "send_frame":
+            send_list.append(item)
+    
     for item in result:
         if lists.__contains__(item):
             lists.remove(item)
@@ -72,6 +76,8 @@ def start(signal_time):
                     network.create_host(actual_inst[3])
                 elif  actual_inst[2] == "hub":
                     network.create_hub(actual_inst[3],actual_inst[4])
+            elif actual_inst[1] == "mac":
+                network.set_mac(actual_inst[2], actual_inst[3])
             elif actual_inst[1] == "connect":
                 network.connect(actual_inst[2], actual_inst[3], time)
             elif actual_inst[1] == "disconnect":
@@ -80,6 +86,7 @@ def start(signal_time):
             
             
         network.send_many(send_list, time)
+        # Asumo que el send_frame va por aca
         
         network.update(time, signal_time)
         time = time + 1

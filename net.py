@@ -3,7 +3,7 @@ from host import Host
 from hub import Hub
 from port import Port
 from switch import Switch
-
+from frame import Frame
 import random
 
 class Net:
@@ -25,6 +25,11 @@ class Net:
         self.graph.add_vertex(hub)  # Agregando el hub a la lista que contiene a todos los dispositivos
         self.hubs[hub.name] = hub   # Agregando el Hub al dicionario que contiene a todos los hubs
     
+    # Mac Address
+    def set_mac(self, host: str, mac_address: str):
+        target_host:Host = self.my_device(host + "_1") # Buscando Host al que le vamos a asignar la Mac
+        target_host.mac_address = mac_address # Asignando mac
+    
 #region Utiles
     
     def my_device(self,port:Port):
@@ -45,57 +50,48 @@ class Net:
             return port.name[len(port.name)-1]=='0' and port.name[len(port.name)-2]=='_'
         return False
 
-    def BFS(self, s:Port,bit:int,time:int,checking:bool):
-        queue:list=[]
-        hub:bool=False #indica si el ultimo puerto en el que estuve era de un hub(solo se utiliza si se esta transmitiendo)
-        queue.append(s)
-        collisions:list=[]
-        ports_tree:list=[]
-        visited:dict = {}
-        visited[s] = True
-        while len(queue)>0:
-            u=queue.pop(0)
-            if not self.graph.E.__contains__(u): # Quitar x si acaso
-                continue
-            for v in self.graph.E[u]:
-                if visited.__contains__(v[0]):
-                    continue
-                if not checking:#es un bfs para enviar informacion por los cables
+    # def BFS(self, s:Port,bit:int,time:int,checking:bool):
+    #     queue:list=[]
+    #     hub:bool=False #indica si el ultimo puerto en el que estuve era de un hub(solo se utiliza si se esta transmitiendo)
+    #     queue.append(s)
+    #     collisions:list=[]
+    #     ports_tree:list=[]
+    #     visited:dict = {}
+    #     visited[s] = True
+    #     while len(queue)>0:
+    #         u=queue.pop(0)
+    #         if not self.graph.E.__contains__(u): # Quitar x si acaso
+    #             continue
+    #         for v in self.graph.E[u]:
+    #             if visited.__contains__(v[0]):
+    #                 continue
+    #             if not checking:#es un bfs para enviar informacion por los cables
 
-                    sending:bool=False#sirve para indicarle a un hub si por el puerto actual se envia, es falso si se esta entrando la informacion por este puerto
-                    if self.hub_center(u):
-                        sending=True#si mi antecesor es el centro del hub, entonces soy un puerto de salida de este
-                    change = v[1]!=bit                    
-                    #se escribe el bit en el cable
-                    self.graph.edit_edge_value(u,v[0],bit)
-                    actual_device = self.my_device(v[0])
-
-                    if(bit!=-1 and change):
-                        if isinstance(actual_device,Hub):#si es un hub se escribe la informacion que está enviando 
-                            send_text = "send" if sending else "receive"
-                            if not self.hub_center(v[0]):
-                                actual_device.write_msg_in_file(f"{time} {v[0].name} {send_text} {str(bit)}")# se manda a escribir al hub que le llega o recibe el bit correspondiente
-                        if isinstance(actual_device,Host):
-                            send_text="receive"
-                            actual_device.write_msg_in_file(f"{time} {v[0].name} {send_text} {str(bit)}")# se manda a escribir al hub que le llega o recibe el bit correspondiente
-                        if isinstance(actual_device,Switch):
-                            ports_to_send=actual_device.send_port(self,v[0])#pide al switch por los puertos que va a enviar
-                            queue.append([ p for p in ports_to_send])#agrega a la cola todos los puertos por los que va a enviar el switch
-
-
+    #                 sending:bool=False#sirve para indicarle a un hub si por el puerto actual se envia, es falso si se esta entrando la informacion por este puerto
+    #                 if self.hub_center(u):
+    #                     sending=True#si mi antecesor es el centro del hub, entonces soy un puerto de salida de este
+    #                 change = v[1]!=bit                    
+    #                 #se escribe el bit en el cable
+    #                 self.graph.edit_edge_value(u,v[0],bit)
+    #                 actual_device = self.my_device(v[0])
+    #                 if isinstance(actual_device,Hub):#si es un hub se escribe la informacion que está enviando 
+    #                     send_text = "send" if sending else "receive"
+    #                     if not self.hub_center(v[0]) and bit!=-1 and change:
+    #                         actual_device.write_msg_in_file(f"{time} {v[0].name} {send_text} {str(bit)}")# se manda a escribir al hub que le llega o recibe el bit correspondiente
+    #                 if isinstance(actual_device,Host) and bit !=-1 and change:
+    #                     send_text="receive"
+    #                     actual_device.write_msg_in_file(f"{time} {v[0].name} {send_text} {str(bit)}")# se manda a escribir al hub que le llega o recibe el bit correspondiente
+    #             else:#o sea es un bfs para detectar colisiones
+    #                 actual_device = self.my_device(v[0])
+    #                 ports_tree.append(v[0])
+    #                 if isinstance(actual_device,Host):#si es un host se busca si esta enviando o transmitiendo para detectar la colision
+    #                     #aqui importante castear a Host el actual_device
+    #                     if actual_device.writing or actual_device.transmitting:
+    #                         collisions.append(actual_device)
+    #             visited[v[0]]=True
                 
-                
-                else:#o sea es un bfs para detectar colisiones
-                    actual_device = self.my_device(v[0])
-                    ports_tree.append(v[0])
-                    if isinstance(actual_device,Host):#si es un host se busca si esta enviando o transmitiendo para detectar la colision
-                        #aqui importante castear a Host el actual_device
-                        if actual_device.writing or actual_device.transmitting:
-                            collisions.append(actual_device)
-                visited[v[0]]=True
-                
-                queue.append(v[0])    
-        return collisions, ports_tree
+    #             queue.append(v[0])    
+    #     return collisions, ports_tree
 
 
 
@@ -173,6 +169,8 @@ class Net:
                 value_to_write = host.actual_bit if not host.time_to_retry > 0 else -1
                 self.BFS(host.port, value_to_write, time, False) # Voy leyendo de todos los dispositivos. 
         #Actualizar todos
+        # Deteccion de errores y correctitud
+        # Si al terminar de enviar el host q esta en transmitting verificamos con el receptor y en caso de que ocurra colision volvemos a enviar la trama
 
     def send(self, host:Host, time:int):
         """metodo que se utiliza cuando se envia a un host a enviar un conjunto de bits"""
@@ -184,21 +182,42 @@ class Net:
 
 
     def send_many(self, send_list: list, time:int):
+        """Procesa todas las instrucciones de send y de send_frame. Si el host comienza a enviar en este ms se verifica si ocurre colision, si ocurre se pone en pendiente, sino, envia.
+        Tambien se procesan todos aquellos host que estan en estado de pendiente y se ponen a enviar si no ocurre colision. Por ultimo, si algun host se encontraba transmitiendo, este continuara transmitiendo xq tiene mayor procedencia que los demas."""
         host_sending = []
-        for instruction in send_list:
-            host = self.my_device(self.graph.search_port(instruction[2]))
-            host.writing = True
-            bits = [int(bit) for bit in instruction[3]]
-            host.bits_to_send += bits
-            host_sending.append(host)
-        
-        for host in self.hosts.values():
+        # Hosts que comenzaran a estar en writing
+        for instruction in send_list: # Iterando por las instrucciones de enviar en la lista que contiene al inicio las instrucciones de send y luego las de send_frame
+            if instruction[1] == "send":
+                host = self.my_device(self.graph.search_port(instruction[2]))
+                host.writing = True
+                bits = [int(bit) for bit in instruction[3]]
+                host.bits_to_send += bits
+                host_sending.append(host)
+            elif instruction[1] == "send_frame": # Creamos el Frame en el host a enviar, annadimos cada bit de la trama a enviar a los bits que tiene q enviar el host, annadimos este host a la lista de host que se encuentran enviando
+                host:Host = self.my_device(self.graph.search_port(instruction[2])) # Busco el host que commenzara a enviar
+                host.writing = True # Este Host esta escribiendo
+                # Added Lines
+                dst_mac = instruction[3]    # Mac de destino
+                data, data_size = Frame.parse_frame_data(instruction[4],method=1)
+                host.add_frame(Frame(state="inactive", src_mac=host.mac_address, dst_mac=dst_mac, data_size=data_size,
+                                     data=data))    # Annadiendo Frame a lista de frames del host
+                #End Added Lines
+                bits = [int(bit) for bit in instruction[3]] # 
+                host.bits_to_send += bits
+                host_sending.append(host)
+
+        # Hosts que estaban en pending
+        for host in self.hosts.values(): # los hosts que estaban esperando para comenzar a enviar
             if host.pending:
                 host.time_to_retry -= 1
                 if host.time_to_retry == 0:
                     host.pending = False
                     host.writing = True
-                    host_sending.append(host)
+                    host_sending.append(host)   # Los sumamos a la lista de hosts que estan enviando en este ms
+          
+        # Colisiones...Primero hacemos bfs buscando todos aquellos que colisionan con cierto host que se encuentra enviando, de ser asi
+        # eliminamos de la lista de los que estan enviando a todos aquellos con los que colisiono este host, si el host se encuentra transmitiendo,
+        # le dejamos via libre          
         while len(host_sending) > 0:
             target = host_sending[0]
             collisions,port_tree = self.BFS(target.port, target.bits_to_send[0],time,True)
@@ -207,15 +226,14 @@ class Net:
             if len(collisions) > 0:
                 self.set_state(target, time, pending=True, collision=True)
                 for host in collisions:  
-                    if not host_sending.__contains__(host):
+                    if not host_sending.__contains__(host): # Si el host no esta contenido en la lista de los host que estan enviando, continua a verificar al siguiente
                         continue                  
-                    index=host_sending.index(host)
-                    if host.transmitting:
+                    index=host_sending.index(host)  # Indice del host que se envuentra enviando y colisionó.
+                    if host.transmitting:   # Si este ya estaba transmitiendo continuara con su transmision porque tiene prioridad
                         continue
                     if index!=-1:  #ver caso de los que estan transmitiendo, en este caso no hacerles nada poner un if para ellos
                         host_sending.pop(index)
                         self.set_state(host, time, pending=True, collision=True)
             else: 
-                self.send(target,time)
+                self.send(target,time) # Si no ocurrio colision, entonces mandamos a 
             host_sending.pop(0)
-            

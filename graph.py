@@ -130,8 +130,3 @@ class Graph:
     def clean_edges_states(self):
         for item in self.E.values:
             item[1] = -1
-
-
-
-
-            
