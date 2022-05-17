@@ -4,6 +4,7 @@ from hub import Hub
 from port import Port
 from switch import Switch
 from frame import Frame
+from bfs import BFS
 import random
 
 class Net:
@@ -44,11 +45,11 @@ class Net:
         if(self.hubs.__contains__(name)):   # Verificando si el dispositivo esta contenido en el diccionario de hubs
             return self.hubs[name]
 
-    def hub_center(self, port:Port):
-        """Devuelve true si este puerto es el puerto ficticio que queda en el centro del hub y se nombra "name"_0"""
-        if isinstance(self.my_device(port),Hub):
-            return port.name[len(port.name)-1]=='0' and port.name[len(port.name)-2]=='_'
-        return False
+    # def hub_center(self, port:Port):
+    #     """Devuelve true si este puerto es el puerto ficticio que queda en el centro del hub y se nombra "name"_0"""
+    #     if isinstance(self.my_device(port),Hub):
+    #         return port.name[len(port.name)-1]=='0' and port.name[len(port.name)-2]=='_'
+    #     return False
 
     # def BFS(self, s:Port,bit:int,time:int,checking:bool):
     #     queue:list=[]
@@ -95,10 +96,10 @@ class Net:
 
 
 
-    def has_cycles(self, port1, port2):
-        """Verifica si existen ciclos en la red(el grafo)"""
-        collisions,ports_tree=self.BFS(port1,0,0,True)
-        return ports_tree.__contains__(port2)
+    # def has_cycles(self, port1, port2):
+    #     """Verifica si existen ciclos en la red(el grafo)"""
+    #     collisions,ports_tree=self.BFS(port1,0,0,True)
+    #     return ports_tree.__contains__(port2)
 
 #endregion
 
@@ -127,8 +128,8 @@ class Net:
         if port2.connected:
             raise Exception("Puerto_2 conectado a alguien mas")
         
-        if self.has_cycles(port1, port2): # Comprobando si no existen ciclos
-            raise Exception("Conexion innecesaria, esos puertos ya estaban cominicados.")
+        # if self.has_cycles(port1, port2): # Comprobando si no existen ciclos
+        #     raise Exception("Conexion innecesaria, esos puertos ya estaban cominicados.")
 
         self.graph.add_edge(port1, port2, -1)   # Agrega la arista <port1,port2> 
         port1.connect()

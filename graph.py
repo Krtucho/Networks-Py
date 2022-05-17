@@ -14,9 +14,9 @@ class Graph:
         if isinstance(u, Hub):
             s = u.s # Vertice h_0...El vertice que estara en el centro
             hub_ports: dict = u.ports # Puertos del Hub
-            for item in hub_ports.values():
-                if item != s:
-                    self.add_edge(s, item, -1)
+            # for item in hub_ports.values():
+            #     if item != s:
+            #         self.add_edge(s, item, -1)
      
     def extract_name(self, port_name:str):
         device_name = port_name.split("_")[0]
@@ -67,15 +67,15 @@ class Graph:
             if item.name == name:
                 return item
     
-    def hub_center(self, port:Port):#devuelve true si este puerto es el puerto ficticio que queda en el centro del hub y se nombra "name"_0
-        if isinstance(self.my_device(port),Hub):
-            return port.name[len(port.name)-1]=='0' and port.name[len(port.name)-2]=='_'
-        return False
+    # def hub_center(self, port:Port):#devuelve true si este puerto es el puerto ficticio que queda en el centro del hub y se nombra "name"_0
+    #     if isinstance(self.my_device(port),Hub):
+    #         return port.name[len(port.name)-1]=='0' and port.name[len(port.name)-2]=='_'
+    #     return False
 
-    def switch_center(self, port:Port):#devuelve true si este puerto es el puerto ficticio que queda en el centro del hub y se nombra "name"_0
-        if isinstance(self.my_device(port),Switch):
-            return port.name[len(port.name)-1]=='0' and port.name[len(port.name)-2]=='_'
-        return False
+    # def switch_center(self, port:Port):#devuelve true si este puerto es el puerto ficticio que queda en el centro del hub y se nombra "name"_0
+    #     if isinstance(self.my_device(port),Switch):
+    #         return port.name[len(port.name)-1]=='0' and port.name[len(port.name)-2]=='_'
+    #     return False
     
     def remove_edge(self, u: Port):
         target = None
@@ -130,3 +130,9 @@ class Graph:
     def clean_edges_states(self):
         for item in self.E.values:
             item[1] = -1
+
+    def search_edge(u:Port,v:Port):
+        for item in self.E[u]:
+            if(item[0]==v):
+                return item
+        print(f"No existe conexion entre {u.name} y {v.name}")
