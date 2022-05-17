@@ -81,3 +81,4 @@ class Host(Device):
     def check_read(self):
         """Escribe el bit que recibio en el archivo de logs"""
         pass
+

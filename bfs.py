@@ -57,6 +57,8 @@ class BFS:
                 return
 
         if isinstance(actual_device_v,Host):
+            #Port(v[0]).bits_received_in_ms=bit
+            Host(actual_device_v).read_bit(v[0])
             send_text="receive"            
             actual_device_v.write_msg_in_file(f"{time} {v[0].name} {send_text} {str(bit)}")# se manda a escribir al hub que le llega o recibe el bit correspondiente
 
@@ -78,11 +80,9 @@ class BFS:
 
     @staticmethod
     def bfs(net:Net,f:function,s:Port,bit:int,time:int,queue:list,visited:dict):
-        #hub:bool=False #indica si el ultimo puerto en el que estuve era de un hub(solo se utiliza si se esta transmitiendo)
         queue.append(s)
         collisions:list=[]
         ports_tree:list=[]
-        #visited:dict = {}
         visited[s] = True
 
         while len(queue)>0:
