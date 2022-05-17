@@ -30,12 +30,6 @@ class BFS:
 
     @staticmethod
     def modify_net(net:Net,bit:int,time:int,u:Port,v,queue:list,visited:dict,collisions:list,ports_tree:list):
-        #sending:bool=False#sirve para indicarle a un hub si por el puerto actual se envia, es falso si se esta entrando la informacion por este puerto
-        # if net.hub_center(u):
-        #     sending=True#si mi antecesor es el centro del hub, entonces soy un puerto de salida de este
-        #change = v[1]!=bit                    
-        #se escribe el bit en el cable
-
         actual_device_u = net.my_device(u)
         actual_device_v = net.my_device(v[0])
 
@@ -44,35 +38,28 @@ class BFS:
             if(v[1]!=-1):
                 collisions.append(v)#si ya esta escrita esa arista es porque hay una colision y el hub lo detecta
                 return 
-            net.graph.edit_edge_value(u,v[0],bit)
-
-        #net.graph.edit_edge_value(u,v[0],bit)
         
-
+        net.graph.edit_edge_value(u,v[0],bit)
+ 
         if isinstance(actual_device_v,Hub):#si es un hub se escribe la informacion que está enviando
-            #send_text=""
             if(BFS.discovering_hub(v[0],actual_device_v,visited)):#en caso de que se pase por un puerto de este hub por primera vez
-                #send_text="receive"
-                Hub(actual_device_v).send_bit(v[0],bit)
-
+                ports_to_send=Hub(actual_device_v).send_bit(v[0],bit)
+                queue.append([ p for p in ports_to_send])
             else:#si se esta llegando a un puerto de un hub  por segunda vez
                 return
 
-               # send_text="send"
-            # send_text=Hub(actual_device).states_ports[v[0]]
-            # actual_device.write_msg_in_file(f"{time} {v[0].name} {send_text} {str(bit)}")# se manda a escribir al hub que le llega o recibe el bit correspondiente
-        
+
         if isinstance(actual_device_v,Switch):
-
-
-            ports_to_send=actual_device_v.send_bit(net,v[0])#pide al switch por los puertos que va a enviar
-            queue.append([ p for p in ports_to_send])#agrega a la cola todos los puertos por los que va a enviar el switch
-
+            if BFS.discovering_switch(v[0],actual_device_v,visited):                
+                ports_to_send=Switch(actual_device_v).send_bit(v[0],bit)#pide al switch por los puertos que va a enviar
+                queue.append([ p for p in ports_to_send])#agrega a la cola todos los puertos por los que va a enviar el switch
+            else:#si ya se habia llegado a este switch, no se necesita que se vuelva a llegar
+                return
 
         if isinstance(actual_device_v,Host):
-            send_text="receive"
+            send_text="receive"            
             actual_device_v.write_msg_in_file(f"{time} {v[0].name} {send_text} {str(bit)}")# se manda a escribir al hub que le llega o recibe el bit correspondiente
-        
+
         
         
         

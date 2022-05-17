@@ -2,7 +2,7 @@ from device import Device
 from port import Port
 from hub import Hub
 from host import Host
-from switch import Switch
+#from switch import Switch
 
 class Graph:
     def __init__(self):
