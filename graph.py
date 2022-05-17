@@ -52,9 +52,9 @@ class Graph:
         for s in self.E[u]:
             if s[0]==v:
                 s[1]=w
-        for s in self.E[v]:
-            if s[0]==u:
-                s[1]=w
+        # for s in self.E[v]:
+        #     if s[0]==u:
+        #         s[1]=w
     
     def my_device(self,port:Port):
         name:str=""
