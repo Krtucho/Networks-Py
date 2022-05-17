@@ -21,6 +21,8 @@ class Switch(Device):
   
     def read_bit(self, bit, port):
         self.ports[port].read_bit(bit)
+
+
 #lo puse dentro de switch para no tocar frame por ahora, pero va dentro de frame
     def append_bit_to_frame(frame:Frame,bit:int):#agrega el bit al lugar correspondiente en la trama, devuelve -1 si no se completa ninguna parte de la trama y devuelve el nombre de la parte de la trama que se complete
         pass
@@ -33,7 +35,7 @@ class Switch(Device):
 
 
 
-    def send_bit(port_0:Port,bit:int): #Cuando el bfs me envia un bit por un puerto
+    def send_bit(self,port_0:Port,bit:int): #Cuando el bfs me envia un bit por un puerto
         frame=self.frame_in_for_port[port_0]
         end_frame=self.append_bit_to_frame(frame,bit)
         

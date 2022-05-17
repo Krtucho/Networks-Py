@@ -131,7 +131,7 @@ class Graph:
         for item in self.E.values:
             item[1] = -1
 
-    def search_edge(u:Port,v:Port):
+    def search_edge(self,u:Port,v:Port):
         for item in self.E[u]:
             if(item[0]==v):
                 return item

@@ -10,7 +10,7 @@ from port import Port
 class BFS:
 
     @staticmethod
-    def modify_net(net:Net,bit:int,time:int,u,v,queue:list,visited:dict,collisions:list,ports_tree:list):
+    def modify_net(net:Net,bit:int,time:int,u:Port,v,queue:list,visited:dict,collisions:list,ports_tree:list):
         #sending:bool=False#sirve para indicarle a un hub si por el puerto actual se envia, es falso si se esta entrando la informacion por este puerto
         # if net.hub_center(u):
         #     sending=True#si mi antecesor es el centro del hub, entonces soy un puerto de salida de este
@@ -21,7 +21,7 @@ class BFS:
 
         if(bit!=-1 and change):
             if isinstance(actual_device,Hub):#si es un hub se escribe la informacion que está enviando 
-                send_text = "send" if sending else "receive"
+                send_text=Hub(actual_device).states_ports[v[0]]
                 if not net.hub_center(v[0]):
                     actual_device.write_msg_in_file(f"{time} {v[0].name} {send_text} {str(bit)}")# se manda a escribir al hub que le llega o recibe el bit correspondiente
             if isinstance(actual_device,Host):

@@ -11,8 +11,11 @@ class Utils:
         return int(hex,16)
     
     @staticmethod
-    def bin_to_hex(bin:int)->str:
-        """Convierte un numero binario en hexadecimal"""
+    def bin_to_hex(bin)->str: 
+        """Convierte un numero binario en hexadecimal. bin puede ser un numero o string"""
+        
+        if isinstance(bin, str):
+            bin = int(bin)
         dic_bin_hex  = {'0000': '0', '0001': '1', '0010': '2', '0011': '3', '0100': '4', '0101': '5',
             '0110': '6', '0111': '7', '1000': '8', '1001': '9', '1010': 'A', '1011': 'B',
             '1100': 'C', '1101': 'D', '1110': 'E', '1111': 'F'}
@@ -37,3 +40,10 @@ class Utils:
             bin.append(dic_hex_bin[i])
         output = "".join(bin)
         return output
+    
+    @staticmethod
+    def bin_to_dec(bin)->int:
+        if isinstance(bin, str):
+            bin = int(bin)
+            
+        return 0

@@ -168,8 +168,8 @@ class Net:
 
         for host in host_transmitting:
                 value_to_write = host.actual_bit if not host.time_to_retry > 0 else -1
-                self.BFS(host.port, value_to_write, time, False) # Voy leyendo de todos los dispositivos. 
-        #Actualizar todos
+                self.BFS.bfs(host.port, value_to_write, time, False) # Voy leyendo de todos los dispositivos. 
+        # Actualizar todos
         # Deteccion de errores y correctitud
         # Si al terminar de enviar el host q esta en transmitting verificamos con el receptor y en caso de que ocurra colision volvemos a enviar la trama
 
@@ -182,9 +182,12 @@ class Net:
         self.BFS(host.port,host.actual_bit,time,False)
 
 
+    def detect_collisions_on_hubs():#si se estan enviando varias tramas en el mismo ms
+        pass
+
     def send_many(self, send_list: list, time:int):
         """Procesa todas las instrucciones de send y de send_frame. Si el host comienza a enviar en este ms se verifica si ocurre colision, si ocurre se pone en pendiente, sino, envia.
-        Tambien se procesan todos aquellos host que estan en estado de pendiente y se ponen a enviar si no ocurre colision. Por ultimo, si algun host se encontraba transmitiendo, este continuara transmitiendo xq tiene mayor procedencia que los demas."""
+        Tambien se procesan todos aquellos host que estan en estado de pendiente y se ponen a enviar si no ocurre colision. Por ultimo, si algun host se encontraba transmitiendo, este continuara transmitiendo xq tiene mayor precedencia que los demas."""
         host_sending = []
         # Hosts que comenzaran a estar en writing
         for instruction in send_list: # Iterando por las instrucciones de enviar en la lista que contiene al inicio las instrucciones de send y luego las de send_frame
