@@ -24,20 +24,44 @@ class Switch(Device):
 
 
 #lo puse dentro de switch para no tocar frame por ahora, pero va dentro de frame
-    def append_bit_to_frame(frame:Frame,bit:int):#agrega el bit al lugar correspondiente en la trama, devuelve -1 si no se completa ninguna parte de la trama y devuelve el nombre de la parte de la trama que se complete
-        pass
+    #def append_bit_to_frame(frame:Frame,bit:int):#agrega el bit al lugar correspondiente en la trama, devuelve -1 si no se completa ninguna parte de la trama y devuelve el nombre de la parte de la trama que se complete
+        
 
-    def send_bit_to_mac():#cuando ya se conoce la mac de destino y se sabe por que puerto se encuentra solo se envia por el puerto de la mac
-        pass
-
-    def send_bit_to_all():#cuando aun no se conoce la mac de destino, se envian estos primeros bits a todo el mundo
-        pass
-
+    def send_bit_to_all(self,bit:int,in_port:Port):#cuando aun no se conoce la mac de destino, se envian estos primeros bits a todo el mundo
+        ports_to_send= [ not(p==in_port) for p in self.ports]
+        return ports_to_send
+        
 
 
-    def send_bit(self,port_0:Port,bit:int): #Cuando el bfs me envia un bit por un puerto
-        frame=self.frame_in_for_port[port_0]
-        end_frame=self.append_bit_to_frame(frame,bit)
+    def send_bit_to_mac(self,bit:int,mac:str,in_port:Port):#cuando ya se conoce la mac de destino y se sabe por que puerto se encuentra solo se envia por el puerto de la mac
+        port=self.macs_ports[mac]
+        if(port==None):
+            return self.send_bit_to_all(bit,port)
+        if(self.macs_ports[mac]==in_port):
+            return []
+        return port
+
+
+    def send_bit(self,in_port:Port,bit:int): #Cuando el bfs me envia un bit por un puerto
+        frame:Frame=self.frame_in_for_port[in_port]
+        part_of_frame_completed_name,part_of_frame_completed_bits=frame.add_bit(bit)
+        # if part_of_frame_completed_name == 'dest_mac':#si se acaba de completar la mac de destino
+        #     pass
+        if part_of_frame_completed_name == 'dest_mac':#si se acaba de completar la mac de origen se agrega el puerto a la tabla de macs
+            self.macs_ports[part_of_frame_completed_bits]=in_port
+
+        if not (frame.actual_part=='dest_mac'):#si ya se descubrio la mac de destino envio a esta mac
+            return self.send_bit_to_mac(frame.get_dst_mac(),bit)
+            
+        return self.send_bit_to_all(bit,in_port)
+        
+        # if self.macs_ports[frame.get_dst_mac()]:
+        #     pass
+        
+
+
+        
+
         
         
 

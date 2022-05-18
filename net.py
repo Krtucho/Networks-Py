@@ -4,7 +4,7 @@ from hub import Hub
 from port import Port
 from switch import Switch
 from frame import Frame
-from bfs import BFS
+from bfs import BFS 
 import random
 
 class Net:
@@ -84,7 +84,7 @@ class Net:
         hosts_tr_lists = []
         for host in self.hosts.values(): 
             if host.transmitting:
-                hosts_tr_lists,p = BFS.bfs(host.port,0,time,True)
+                hosts_tr_lists,p = BFS.bfs(self,BFS.modify_net,host.port,0,time,[],{})
                 if len(hosts_tr_lists)>0:
                     self.set_state(time, host, pending=True)
                     for coll_host in hosts_tr_lists:
@@ -109,12 +109,12 @@ class Net:
                 host_transmitting.append(host)
                 # Voy modificando todos los cables. Escribir valor en cable, null si hay cambio
                 if host.time_to_send_next_bit == 0:
-                    BFS.bfs(host.port, -1, time, False)#cuando un host ya transmitio por 10 ms se pone el cable en -1 para que en el siguiente ms cuando se envie algo, todos noten el cambio
+                    BFS.bfs(self,BFS.modify_net,host.port, -1, time,[],{})#cuando un host ya transmitio por 10 ms se pone el cable en -1 para que en el siguiente ms cuando se envie algo, todos noten el cambio
                 host.update_bit_time(time, False) #Actualizando el bit del host 
 
         for host in host_transmitting:
                 value_to_write = host.actual_bit if not host.time_to_retry > 0 else -1
-                BFS.bfs(host.port, value_to_write, time, False) # Voy leyendo de todos los dispositivos. 
+                BFS.bfs(self,BFS.modify_net,host.port, value_to_write, time,[],{}) # Voy leyendo de todos los dispositivos. 
         # Actualizar todos
         # Deteccion de errores y correctitud
         # Si al terminar de enviar el host q esta en transmitting verificamos con el receptor y en caso de que ocurra colision volvemos a enviar la trama
@@ -125,10 +125,11 @@ class Net:
         self.set_state(host, time, transmitting=True) # Cambiamos el estado y reportamos que el host esta escribiendo 
         host.time_to_send_next_bit = self.signal_time   # Reiniciando el tiempo restante para enviar el siguiente bit
         
-        self.BFS.bfs(host.port,host.actual_bit,time,False)
+        BFS.bfs(self,BFS.modify_net,host.port,host.actual_bit,time,[],{})
 
 
     def detect_collisions_on_hubs():#si se estan enviando varias tramas en el mismo ms
+
         pass
 
     def send_many(self, send_list: list, time:int):
@@ -170,7 +171,7 @@ class Net:
         # le dejamos via libre          
         while len(host_sending) > 0:
             target = host_sending[0]
-            collisions,port_tree = self.BFS(target.port, target.bits_to_send[0],time,True)
+            collisions,port_tree = self.BFS(self,BFS.comprobate_net,target.port, target.bits_to_send[0],time,[],{})
             #cuando este vacia la lista de colisiones hacer send con target 
             # en caso de no estar vacia poner a todos en pendiente(target+pendientes)
             if len(collisions) > 0:

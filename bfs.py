@@ -32,7 +32,9 @@ class BFS:
     def modify_net(net:Net,bit:int,time:int,u:Port,v,queue:list,visited:dict,collisions:list,ports_tree:list):
         actual_device_u = net.my_device(u)
         actual_device_v = net.my_device(v[0])
-
+        change=not(bit==v[1])
+        if not change:#si no hay cambio en la arista no hay nada que hacer
+            return
         if isinstance(actual_device_u,Hub):
             Hub(actual_device_u).write_bit_in_port(u,bit)
             if(v[1]!=-1):
@@ -58,7 +60,7 @@ class BFS:
 
         if isinstance(actual_device_v,Host):
             #Port(v[0]).bits_received_in_ms=bit
-            Host(actual_device_v).read_bit(v[0])
+            Host(actual_device_v).read_bit(bit)
             send_text="receive"            
             actual_device_v.write_msg_in_file(f"{time} {v[0].name} {send_text} {str(bit)}")# se manda a escribir al hub que le llega o recibe el bit correspondiente
 
@@ -68,14 +70,9 @@ class BFS:
     @staticmethod
     def comprobate_net(net:Net,bit:int,time:int,u,v,queue:list,visited:dict,collisions:list,ports_tree:list):
         actual_device = net.my_device(v[0])
-
         ports_tree.append([v[0],])
+        
 
-
-       #if isinstance(actual_device,Host):#si es un host se busca si esta enviando o transmitiendo para detectar la colision
-            #aqui importante castear a Host el actual_device
-            #if actual_device.writing or actual_device.transmitting:
-            #    collisions.append(actual_device)
 
 
     @staticmethod

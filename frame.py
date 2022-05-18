@@ -1,9 +1,9 @@
 from check import Check
 from utils import Utils
-from cfg import SRC_MAC_START_INDEX, SRC_MAC_END_INDEX, DST_MAC_START_INDEX, DST_MAC_END_INDEX
+from cfg import SRC_MAC_START_INDEX, SRC_MAC_END_INDEX, DST_MAC_START_INDEX, DST_MAC_END_INDEX,DATA_SIZE,CHECK_SIZE
 
 class Frame:
-    def __init__(self, state="active", src_mac="", dst_mac="", data_size=0, data="", check_method="CRC")-> None:
+    def __init__(self, state="active", src_mac="", dst_mac="", data_size=0, data="", check_method="CRC", check_bits=[])-> None:
         self.state = state # Estado actual de la trama, active si se esta transmitiendo, inactive si no se esta transmitiendo, enqueued si esta encolada, completed si se ha terminado de transmitir
         self.index = 0 # Indice actual de los bits de la trama
         self.src_mac = src_mac
@@ -11,12 +11,37 @@ class Frame:
         self.data_size = data_size
         self.data = ""
         self.check: Check = Check(check_method)
-        self.bits = []
+        self.check_bits = check_bits
+        self.bits = []        
+        self.actual_part='mac_dest'#guarda la parte de la trama que se esta completando actualmente
      
-    def add_bit(self, bit:int):
+    def add_bit(self, bit:int):#agrega un bit a la trama y en caso de que se complete alguna de sus partes devuelve esta
         self.bits.append(bit)
         self.index += 1
-        
+        if self.index==SRC_MAC_END_INDEX:
+            self.actual_part='source_mac'
+            return 'dest_mac',self.get_dst_mac()
+        if self.index==DST_MAC_END_INDEX:
+            self.actual_part='data_size'
+            return 'source_mac',self.get_src_mac()
+        if self.index==DST_MAC_END_INDEX+DATA_SIZE:
+            self.actual_part='check_size'
+            return 'data_size',self.get_data_size()
+        if self.index==DST_MAC_END_INDEX+DATA_SIZE+CHECK_SIZE:
+            self.actual_part='end'
+            return 'check_size',self.get_data_check_size()
+
+        data_bits=self.get_data_bits()
+        if len(data_bits)== Utils.bin_to_dec(self.get_data_size()):
+            return 'data_bits',data_bits
+                
+        check_bits=self.get_check_bits()
+        if len(check_bits)== Utils.bin_to_dec(self.get_data_check_size()):
+            return 'check_bits',check_bits
+
+        return ['nothing',None]
+
+    
     def get_src_mac(self)->str:
         """Devuelve la mac de origen que pertenece a la trama"""
         if self.index >= SRC_MAC_END_INDEX:
@@ -56,6 +81,15 @@ class Frame:
         if self.index >= CHECK_START_INDEX:
             return self.bits[CHECK_START_INDEX:CHECK_START_INDEX+8]
         return None
+
+    def clear_frame(self):
+        self.index = 0 # Indice actual de los bits de la trama
+        self.src_mac = 0
+        self.dst_mac = 0
+        self.data_size = 0
+        self.data = ""
+        self.actual_part='mac_dest'
+        self.bits = []
     
     @staticmethod
     def parse_frame_data(data:str, method:int=1): 

@@ -11,3 +11,9 @@ DST_MAC_START_INDEX = 16
 
 # Indice para indicar el bit de final en la mac address de una trama
 DST_MAC_END_INDEX = 31
+
+# Indice para indicar la cantidad de bits de tamanno de data
+DATA_SIZE = 8
+
+# Indice para indicar la cantidad de bits de tamanno del data check
+CHECK_SIZE = 8
