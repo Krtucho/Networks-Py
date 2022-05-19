@@ -18,8 +18,6 @@ class BFS:
                 return False
         return True
 
-
-
     @staticmethod
     def discovering_switch(in_port:Port,s:Switch,visited:dict):#igual a discovering_hub
         for port in s.ports:
@@ -29,7 +27,7 @@ class BFS:
 
 
     @staticmethod
-    def modify_net(net:Net,bit:int,time:int,u:Port,v,queue:list,visited:dict,collisions:list,ports_tree:list):
+    def modify_net(net:Net,bit:int,time:int,u:Port,v,queue:list,visited:dict,collisions:list,edges:list):
         actual_device_u = net.my_device(u)
         actual_device_v = net.my_device(v[0])
         change=not(bit==v[1])
@@ -68,9 +66,9 @@ class BFS:
         
         
     @staticmethod
-    def comprobate_net(net:Net,bit:int,time:int,u,v,queue:list,visited:dict,collisions:list,ports_tree:list):
+    def comprobate_net(net:Net,bit:int,time:int,u,v,queue:list,visited:dict,collisions:list,edges:list):
         actual_device = net.my_device(v[0])
-        ports_tree.append([v[0],])
+        edges.append([u,v[0]])
         
 
 
@@ -79,7 +77,7 @@ class BFS:
     def bfs(net:Net,f:function,s:Port,bit:int,time:int,queue:list,visited:dict):
         queue.append(s)
         collisions:list=[]
-        ports_tree:list=[]
+        edges:list=[]
         visited[s] = True
 
         while len(queue)>0:
@@ -89,11 +87,11 @@ class BFS:
             for v in net.graph.E[u]:#selecciono la arista                
                 if visited.__contains__(v[0]):#si ya esa arista ha sido visitada se salta
                     continue
-                f(net,bit,time,u,v,queue,visited,collisions,ports_tree)  #llamo la funcion de cambios en la red
+                f(net,bit,time,u,v,queue,visited,collisions,edges)  #llamo la funcion de cambios en la red
                 visited[v[0]]=True
                 
             queue.append(v[0])    
-        return collisions, ports_tree
+        return collisions, edges
 
 
 

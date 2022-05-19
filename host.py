@@ -137,9 +137,9 @@ class Host(Device):
         if not self.can_remove_frame():
             return False
         #aqui lo hace con la lista de los frames que yo entiendo que son para enviar
-        frame:Frame = self.frames_list.pop(self.actual_frame)
-        if len(self.frames_list) <= 0:
-            self.actual_frame = -1
+        frame:Frame = self.receiving_frame#self.frames_list.pop(self.actual_frame)
+        # if len(self.receiving_frame) <= 0:
+        #     self.actual_frame = -1
         dst_mac = self.mac == frame.get_dst_mac()
         if not self.mac == dst_mac:
             return False
