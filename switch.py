@@ -1,6 +1,6 @@
 from port import Port
 from device import Device
-from net import Net
+# from net import Net
 from frame import Frame
 
 class Switch(Device):

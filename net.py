@@ -4,7 +4,7 @@ from hub import Hub
 from port import Port
 from switch import Switch
 from frame import Frame
-from bfs import BFS 
+# from bfs import BFS 
 import random
 
 class Net:
@@ -226,3 +226,93 @@ class Net:
 
 
             # host_sending.pop(0)
+
+
+
+
+class BFS:
+
+    @staticmethod 
+    def discovering_hub(in_port:Port,h:Hub, visited:dict):
+    #Devuelve true si en el bfs actual ya se entro la informacion por algun puerto de ese hub por lo que la funcion del puerto actual
+    #es transmitir a partir de ahi
+        for port in h.ports:
+            if visited[port]:
+                return False
+        return True
+
+    @staticmethod
+    def discovering_switch(in_port:Port,s:Switch,visited:dict):#igual a discovering_hub
+        for port in s.ports:
+            if visited[port]:
+                return False
+        return True
+
+
+    @staticmethod
+    def modify_net(net:Net,bit:int,time:int,u:Port,v,queue:list,visited:dict,collisions:list,edges:list):
+        actual_device_u = net.my_device(u)
+        actual_device_v = net.my_device(v[0])
+        change=not(bit==v[1])
+        if not change:#si no hay cambio en la arista no hay nada que hacer
+            return
+        if isinstance(actual_device_u,Hub):
+            Hub(actual_device_u).write_bit_in_port(u,bit)
+            if(v[1]!=-1):
+                collisions.append(v)#si ya esta escrita esa arista es porque hay una colision y el hub lo detecta
+                return 
+        
+        net.graph.edit_edge_value(u,v[0],bit)
+ 
+        if isinstance(actual_device_v,Hub):#si es un hub se escribe la informacion que está enviando
+            if(BFS.discovering_hub(v[0],actual_device_v,visited)):#en caso de que se pase por un puerto de este hub por primera vez
+                ports_to_send=Hub(actual_device_v).send_bit(v[0],bit)
+                queue.append([ p for p in ports_to_send])
+            else:#si se esta llegando a un puerto de un hub  por segunda vez
+                return
+
+
+        if isinstance(actual_device_v,Switch):
+            if BFS.discovering_switch(v[0],actual_device_v,visited):                
+                ports_to_send=Switch(actual_device_v).send_bit(v[0],bit)#pide al switch por los puertos que va a enviar
+                queue.append([ p for p in ports_to_send])#agrega a la cola todos los puertos por los que va a enviar el switch
+            else:#si ya se habia llegado a este switch, no se necesita que se vuelva a llegar
+                return
+
+        if isinstance(actual_device_v,Host):
+            #Port(v[0]).bits_received_in_ms=bit
+            Host(actual_device_v).read_bit(bit)
+            send_text="receive"            
+            actual_device_v.write_msg_in_file(f"{time} {v[0].name} {send_text} {str(bit)}")# se manda a escribir al hub que le llega o recibe el bit correspondiente
+
+        
+        
+        
+    @staticmethod
+    def comprobate_net(net:Net,bit:int,time:int,u,v,queue:list,visited:dict,collisions:list,edges:list):
+        actual_device = net.my_device(v[0])
+        edges.append([u,v[0]])
+        
+
+
+
+    @staticmethod
+    def bfs(net:Net,f,s:Port,bit:int,time:int,queue:list,visited:dict):
+        queue.append(s)
+        collisions:list=[]
+        edges:list=[]
+        visited[s] = True
+
+        while len(queue)>0:
+            u=queue.pop(0)
+            if not net.graph.E.__contains__(u): # en caso de que no tenga aristas
+                continue
+            for v in net.graph.E[u]:#selecciono la arista                
+                if visited.__contains__(v[0]):#si ya esa arista ha sido visitada se salta
+                    continue
+                f(net,bit,time,u,v,queue,visited,collisions,edges)  #llamo la funcion de cambios en la red
+                visited[v[0]]=True
+                
+            queue.append(v[0])    
+        return collisions, edges
+

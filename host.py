@@ -1,7 +1,7 @@
 from port import Port
 from device import Device
-from check import Check
-from frame import Frame
+from check import *
+# from frame import Frame
 
 class Host(Device):
     def __init__(self, name, signal_time=10):

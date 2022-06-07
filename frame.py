@@ -1,4 +1,4 @@
-from check import Check
+# from check import Check
 from utils import Utils
 from cfg import SRC_MAC_START_INDEX, SRC_MAC_END_INDEX, DST_MAC_START_INDEX, DST_MAC_END_INDEX,DATA_SIZE,CHECK_SIZE
 
@@ -10,7 +10,7 @@ class Frame:
         self.dst_mac = dst_mac
         self.data_size = data_size
         self.data = ""
-        self.check: Check = Check(check_method)
+        # self.check: Check = Check(check_method)
         self.check_bits = check_bits
         self.bits = []        
         self.actual_part='mac_dest'#guarda la parte de la trama que se esta completando actualmente

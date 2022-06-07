@@ -1,7 +1,7 @@
-0 create hub h 4
 0 create host pc
-0 connect h_1 pc_1
-1 create host pco
-1 connect pco_1 h_3
-2 send pc_1 1000
-3 send pco_1 100
+0 mac pc A4B5
+0 create switch sw1 2
+0 connect sw1_1 pc_1
+1 create host pc2
+1 mac pc2 B111
+1 connect sw1_2 pc2_1

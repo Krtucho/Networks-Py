@@ -1,7 +1,7 @@
 from host import Host
 from hub import Hub
 from switch import Switch
-from net import Net
+from net import *
 import sys
 
 signal_time: int = 10
