@@ -1,3 +1,4 @@
+from tkinter import N
 from graph import Graph
 from host import Host
 from hub import Hub
@@ -20,6 +21,10 @@ class Net:
         self.graph.add_vertex(pc)   # Agregando al grafo el host creado
         self.hosts[pc.name] = pc    # Agregando el host al diccionario que contiene todos los hosts
     
+    def create_switch(self,name,n_ports)->None:
+        sw=Switch(name,n_ports)
+        self.graph.add_vertex(sw)
+
     def create_hub(self, name, n_ports):
         """Creando un hub con nombre name y una cantidad n_ports de puertos"""
         hub = Hub(name, n_ports)    # Creando la instancia de tipo Hub
@@ -28,7 +33,7 @@ class Net:
     
     # Mac Address
     def set_mac(self, host: str, mac_address: str):
-        target_host:Host = self.my_device(host + "_1") # Buscando Host al que le vamos a asignar la Mac
+        target_host:Host = self.my_device_str(host + "_1") # Buscando Host al que le vamos a asignar la Mac
         target_host.mac_address = mac_address # Asignando mac
     
 #region Utiles
@@ -37,6 +42,18 @@ class Net:
         """Dado un puerto devuelve el dispositivo en el que se encuentra el mismo"""
         name:str="" # Obteniendo el nombre del dispositivo
         for s in port.name:
+            if s == "_":
+                break
+            name+=s
+        if(self.hosts.__contains__(name)):  # Verificando si el dispositivo esta contenido en el diccionario de hosts
+            return self.hosts[name]
+        if(self.hubs.__contains__(name)):   # Verificando si el dispositivo esta contenido en el diccionario de hubs
+            return self.hubs[name]
+
+    def my_device_str(self,port:str):
+        """Dado un puerto devuelve el dispositivo en el que se encuentra el mismo"""
+        name:str="" # Obteniendo el nombre del dispositivo
+        for s in port:
             if s == "_":
                 break
             name+=s

@@ -2,6 +2,7 @@ from device import Device
 from port import Port
 from hub import Hub
 from host import Host
+from switch import Switch
 #from switch import Switch
 
 class Graph:
@@ -17,6 +18,7 @@ class Graph:
             # for item in hub_ports.values():
             #     if item != s:
             #         self.add_edge(s, item, -1)
+        
      
     def extract_name(self, port_name:str):
         device_name = port_name.split("_")[0]
@@ -27,7 +29,7 @@ class Graph:
         target = self.extract_name(port_name)
         for vertex in self.V:
             if vertex.name == target:
-                if isinstance(vertex, Hub):
+                if isinstance(vertex, Hub) or isinstance (vertex,Switch):
                     for port in vertex.ports.values():
                         if port.name == port_name:
                             return port

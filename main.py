@@ -16,6 +16,40 @@ def create_device(type="host", name="", n_ports=1):
         return Switch(name)
     return None
 
+# def get_inst(lists: list, time: int)->list:
+#     result = []
+#     send_list = []
+     
+#     for item in lists:
+#         if int(item[0]) == time and item[1] == "create" :
+#             result.append(item)
+
+#     for item in lists:
+#         if int(item[0]) == time and item[1] == "mac" :
+#             result.append(item)    
+
+#     for item in lists:
+#         if (int(item[0]) == time) and (item[1] == "connect" or item[1] == "disconnect"):
+#             result.append(item)
+            
+#     for item in lists:
+#         if int(item[0]) == time and item[1] == "send":
+#             send_list.append(item)
+            
+#     for item in lists:
+#         if int(item[0]) == time and item[1] == "send_frame":
+#             send_list.append(item)
+    
+#     for item in result:
+#         if lists.__contains__(item):
+#             lists.remove(item)
+            
+#     for item in send_list:
+#         if lists.__contains__(item):
+#             lists.remove(item)
+            
+#     return result, send_list
+    
 def get_inst(lists: list, time: int)->list:
     result = []
     send_list = []
@@ -23,7 +57,9 @@ def get_inst(lists: list, time: int)->list:
     for item in lists:
         if int(item[0]) == time and item[1] == "create" :
             result.append(item)
-
+    for item in lists:
+        if int(item[0]) == time and item[1] == "mac" :
+            result.append(item)
             
     for item in lists:
         if (int(item[0]) == time) and (item[1] == "connect" or item[1] == "disconnect"):
@@ -46,8 +82,8 @@ def get_inst(lists: list, time: int)->list:
             lists.remove(item)
             
     return result, send_list
-    
-    
+
+
 def is_finished(network:Net):
     return network.is_finished()
 
@@ -76,6 +112,8 @@ def start(signal_time):
                     network.create_host(actual_inst[3])
                 elif  actual_inst[2] == "hub":
                     network.create_hub(actual_inst[3],actual_inst[4])
+                elif  actual_inst[2] == "switch":
+                    network.create_switch(actual_inst[3],actual_inst[4])
             elif actual_inst[1] == "mac":
                 network.set_mac(actual_inst[2], actual_inst[3])
             elif actual_inst[1] == "connect":
