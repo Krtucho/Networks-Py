@@ -50,11 +50,13 @@ class Switch(Device):
         #     frame:Frame=self.frame_in_for_port[in_port]
         # else:
         if not self.frame_in_for_port.__contains__(in_port):
-            temp_frame:Frame = Frame()
+            temp_frame:Frame = Frame(state="receiving")
             self.frame_in_for_port[in_port]=temp_frame
             # temp_frame.bits.append(bit)
-
+        
         frame:Frame = self.frame_in_for_port[in_port]
+        
+        
         part_of_frame_completed_name,part_of_frame_completed_bits=frame.add_bit(bit)
         # if part_of_frame_completed_name == 'dest_mac':#si se acaba de completar la mac de destino
         #     pass

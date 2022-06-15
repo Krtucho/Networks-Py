@@ -11,19 +11,24 @@ class Frame:
         self.dst_mac = dst_mac
         self.data_size = data_size
         self.data = ""
+        self.bits = []
         # self.check: Check = Check(check_method)
-        self.bits = [int(v) for v in Utils.hex_to_bin(dst_mac) + 
-                        Utils.hex_to_bin(src_mac) + 
-                        Utils.dec_to_bin(data_size)+
-                        Utils.dec_to_bin(CHECK_SIZE)+
-                        data+Check.create_check_bits(data)] 
+        if state == "receiving":
+            self.bits = []
+        else:
+            self.bits = [int(v) for v in Utils.hex_to_bin(dst_mac) + 
+                            Utils.hex_to_bin(src_mac) + 
+                            Utils.dec_to_bin(data_size)+
+                            Utils.dec_to_bin(CHECK_SIZE)+
+                            data+Check.create_check_bits(data)] 
         self.check_bits = self.get_check_bits()
 
         self.actual_part='dest_mac'#guarda la parte de la trama que se esta completando actualmente
      
     def add_bit(self, bit:int):#agrega un bit a la trama y en caso de que se complete alguna de sus partes devuelve esta
-        self.bits.append(bit)
-        self.index += 1
+        if not(bit==-1):
+            self.bits.append(bit)
+            self.index += 1
         if self.index==SRC_MAC_END_INDEX:
             self.actual_part='source_mac'
             return 'dest_mac',self.get_dst_mac()

@@ -297,9 +297,8 @@ class BFS:
                 return
 
 
-        if isinstance(actual_device_v,Switch):
-            if BFS.discovering_switch(v[0],actual_device_v,visited):                
-
+        if isinstance(actual_device_v,Switch):            
+            if BFS.discovering_switch(v[0],actual_device_v,visited):  
                 ports_to_send = actual_device_v.send_bit(v[0],bit)#pide al switch por los puertos que va a enviar
                 [queue.append(p) for p in ports_to_send]#agrega a la cola todos los puertos por los que va a enviar el switch
 
