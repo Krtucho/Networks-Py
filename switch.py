@@ -28,7 +28,10 @@ class Switch(Device):
         
 
     def send_bit_to_all(self,bit:int,in_port:Port):#cuando aun no se conoce la mac de destino, se envian estos primeros bits a todo el mundo
-        ports_to_send= [ not(p==in_port) for p in self.ports]
+        ports_to_send= []#[ p if not(p==in_port) else pass for p in self.ports]
+        for p in self.ports.values():
+            if not(p==in_port):
+                ports_to_send.append(p)
         return ports_to_send
         
 

@@ -153,6 +153,8 @@ class Host(Device):
 
     def read_bit(self, time, bit:int, port=1):#se lee el bit actual y si es el final de la trama se manda a escribir en la data.txt
         self.port.read_bit(bit)        
+        if not self.receiving_frame:
+            self.receiving_frame=Frame()
         part_of_frame_completed_name,part_of_frame_completed_bits=self.receiving_frame.add_bit(bit)
         if self.receiving_frame.actual_part  == 'end':
             if self.check_frame():

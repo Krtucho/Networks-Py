@@ -292,7 +292,7 @@ class BFS:
         if isinstance(actual_device_v,Hub):#si es un hub se escribe la informacion que está enviando
             if(BFS.discovering_hub(v[0],actual_device_v,visited)):#en caso de que se pase por un puerto de este hub por primera vez
                 ports_to_send=Hub(actual_device_v).send_bit(v[0],bit)
-                queue.append([ p for p in ports_to_send])
+                [ queue.append(p) for p in ports_to_send]
             else:#si se esta llegando a un puerto de un hub  por segunda vez
                 return
 
@@ -301,13 +301,14 @@ class BFS:
             if BFS.discovering_switch(v[0],actual_device_v,visited):                
 
                 ports_to_send = actual_device_v.send_bit(v[0],bit)#pide al switch por los puertos que va a enviar
-                queue.append([ p for p in ports_to_send])#agrega a la cola todos los puertos por los que va a enviar el switch
+                [queue.append(p) for p in ports_to_send]#agrega a la cola todos los puertos por los que va a enviar el switch
+
             else:#si ya se habia llegado a este switch, no se necesita que se vuelva a llegar
                 return
 
         if isinstance(actual_device_v,Host):
             #Port(v[0]).bits_received_in_ms=bit
-            Host(actual_device_v).read_bit(bit)
+            Host(actual_device_v).read_bit(time,bit)
             send_text="receive"            
             actual_device_v.write_msg_in_file(f"{time} {v[0].name} {send_text} {str(bit)}")# se manda a escribir al hub que le llega o recibe el bit correspondiente
 
@@ -339,6 +340,6 @@ class BFS:
                     continue
                 f(net,bit,time,u,v,queue,visited,collisions,edges)  #llamo la funcion de cambios en la red
                 visited[v[0]]=True                
-            queue.append(v[0])    
+            # queue.append(v[0])    
         return collisions, edges
 

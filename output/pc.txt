@@ -1,1 +1,16 @@
 4 pc_1 send 1 ok
+14 pc_1 send 0 ok
+24 pc_1 send 1 ok
+34 pc_1 send 1 ok
+44 pc_1 send 0 ok
+54 pc_1 send 0 ok
+64 pc_1 send 0 ok
+74 pc_1 send 1 ok
+84 pc_1 send 0 ok
+94 pc_1 send 0 ok
+104 pc_1 send 0 ok
+114 pc_1 send 1 ok
+124 pc_1 send 0 ok
+134 pc_1 send 0 ok
+144 pc_1 send 0 ok
+154 pc_1 send 1 ok
