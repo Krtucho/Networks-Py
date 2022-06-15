@@ -308,6 +308,8 @@ class BFS:
 
         if isinstance(actual_device_v,Host):
             #Port(v[0]).bits_received_in_ms=bit
+            if(bit==-1):
+                return
             actual_device_v.read_bit(time,bit)
             send_text="receive"            
             actual_device_v.write_msg_in_file(f"{time} {v[0].name} {send_text} {str(bit)}")# se manda a escribir al hub que le llega o recibe el bit correspondiente
