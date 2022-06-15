@@ -18,7 +18,7 @@ class Switch(Device):
             #self.macs_for_ports[temp_name]=[]#creando un diccionario que tiene como key los nombres de los puertos y por cada uno una lista de las macs que se acceden desde ahi
             self.frame_in_for_port={}#diccionario en el que se indexa por puerto y se obtiene el frame que esta entrando por ese puerto
             self.frame_out_for_port={}#diccionario en el que se indexa por puerto y se obtiene el frame que esta saliendo por ese puerto  
-  
+
     def read_bit(self, bit, port):
         self.ports[port].read_bit(bit)
 
@@ -43,7 +43,15 @@ class Switch(Device):
 
 
     def send_bit(self,in_port:Port,bit:int): #Cuando el bfs me envia un bit por un puerto
-        frame:Frame=self.frame_in_for_port[in_port]
+        # if self.frame_in_for_port.__contains__(in_port):
+        #     frame:Frame=self.frame_in_for_port[in_port]
+        # else:
+        if not self.frame_in_for_port.__contains__(in_port):
+            temp_frame:Frame = Frame()
+            self.frame_in_for_port[in_port]=temp_frame
+            # temp_frame.bits.append(bit)
+
+        frame:Frame = self.frame_in_for_port[in_port]
         part_of_frame_completed_name,part_of_frame_completed_bits=frame.add_bit(bit)
         # if part_of_frame_completed_name == 'dest_mac':#si se acaba de completar la mac de destino
         #     pass
@@ -51,7 +59,7 @@ class Switch(Device):
             self.macs_ports[part_of_frame_completed_bits]=in_port
 
         if not (frame.actual_part=='dest_mac'):#si ya se descubrio la mac de destino envio a esta mac
-            return self.send_bit_to_mac(frame.get_dst_mac(),bit)
+            return self.send_bit_to_mac(bit,frame.get_dst_mac(),in_port)
             
         return self.send_bit_to_all(bit,in_port)
         

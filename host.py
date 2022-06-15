@@ -1,6 +1,6 @@
 from port import Port
 from device import Device
-from check import *
+from frame import *
 # from frame import Frame
 
 class Host(Device):
@@ -27,7 +27,7 @@ class Host(Device):
         self.actual_frame = -1 # Indice del frame actual de la lista de frames_list
         # Frames times
         self.last_updated_frame_time = 0 # Tiempo transcurrido desde que se envio el ultimo bit
-        self.receiving_frame=Frame()#ver despues por que no se construyo la trama vacia
+        self.receiving_frame = None#=Frame()#ver despues por que no se construyo la trama vacia
         # Files
         self.data_name = f'output/{name}_data.txt'
         self._data = open(self.data_name, 'w') # Archivo de salida en la que se guardaran los logs
@@ -143,7 +143,7 @@ class Host(Device):
         dst_mac = self.mac == frame.get_dst_mac()
         if not self.mac == dst_mac:
             return False
-        if Check.check(frame):
+        if Check.check(frame.get_data_bits(), frame.get_check_bits()):
             self.save_data(frame, "OK")
             return True
         else:

@@ -14,6 +14,7 @@ class Net:
         self.graph = Graph()
         self.hosts = {}
         self.hubs = {}
+        self.switchs={}
         
     def create_host(self, name)->None:
         """Crea un host con nombre name"""
@@ -24,6 +25,7 @@ class Net:
     def create_switch(self,name,n_ports)->None:
         sw=Switch(name,n_ports)
         self.graph.add_vertex(sw)
+        self.switchs[sw.name]=sw
 
     def create_hub(self, name, n_ports):
         """Creando un hub con nombre name y una cantidad n_ports de puertos"""
@@ -49,6 +51,9 @@ class Net:
             return self.hosts[name]
         if(self.hubs.__contains__(name)):   # Verificando si el dispositivo esta contenido en el diccionario de hubs
             return self.hubs[name]
+        if(self.switchs.__contains__(name)):   # Verificando si el dispositivo esta contenido en el diccionario de switchs
+            return self.switchs[name]
+        
 
     def my_device_str(self,port:str):
         """Dado un puerto devuelve el dispositivo en el que se encuentra el mismo"""
@@ -61,6 +66,8 @@ class Net:
             return self.hosts[name]
         if(self.hubs.__contains__(name)):   # Verificando si el dispositivo esta contenido en el diccionario de hubs
             return self.hubs[name]
+        if(self.switchs.__contains__(name)):   # Verificando si el dispositivo esta contenido en el diccionario de switchs
+            return self.switchs[name]
 
    
 
@@ -170,12 +177,14 @@ class Net:
                 host.writing = True # Este Host esta escribiendo
                 # Added Lines
                 dst_mac = instruction[3]    # Mac de destino
-                data, data_size = Frame.parse_frame_data(instruction[4],method=1)
+                # temp_data = "" + instruction[4]
+                # data, data_size = Frame.parse_frame_data(instruction[4],method=1)
+                data, data_size= Frame.parse_frame_data(instruction[4],method=1)
                 host.add_frame(Frame(state="inactive", src_mac=host.mac_address, dst_mac=dst_mac, data_size=data_size,
                                      data=data))    # Annadiendo Frame a lista de frames del host
                 #End Added Lines
-                bits = [int(bit) for bit in instruction[3]] # 
-                host.bits_to_send += bits
+                # bits = [int(bit) for bit in instruction[3]] # 
+                host.bits_to_send += host.frames_list[-1].bits
                 host_sending.append(host)
 
         # Hosts que estaban en pending
@@ -195,7 +204,8 @@ class Net:
         #diccionario que va a tener por cada arista que pertenezca a un puerto de un hub, va a devolver el host desde el que se envia
         edges_per_send={}
         collisions=[]
-        i=len(host_sending)
+        i=len(host_sending) -1
+        # 
         while i > 0:
             target:Host = host_sending[i]
             c,edges=BFS.bfs(self,BFS.comprobate_net,target.port,0,0,[],{})
@@ -214,9 +224,7 @@ class Net:
             if collisions.__contains__(target):                 
                 if host.transmitting:   # Si este ya estaba transmitiendo continuara con su transmision porque tiene prioridad
                     continue
-                self.set_state(host, time, pending=True, collision=True)
-
-                
+                self.set_state(host, time, pending=True, collision=True)                
             else:
                 self.send(target,time)
             host_sending.pop(0)
@@ -261,7 +269,7 @@ class BFS:
     @staticmethod
     def discovering_switch(in_port:Port,s:Switch,visited:dict):#igual a discovering_hub
         for port in s.ports:
-            if visited[port]:
+            if visited.__contains__(port):
                 return False
         return True
 
@@ -291,7 +299,8 @@ class BFS:
 
         if isinstance(actual_device_v,Switch):
             if BFS.discovering_switch(v[0],actual_device_v,visited):                
-                ports_to_send=Switch(actual_device_v).send_bit(v[0],bit)#pide al switch por los puertos que va a enviar
+
+                ports_to_send = actual_device_v.send_bit(v[0],bit)#pide al switch por los puertos que va a enviar
                 queue.append([ p for p in ports_to_send])#agrega a la cola todos los puertos por los que va a enviar el switch
             else:#si ya se habia llegado a este switch, no se necesita que se vuelva a llegar
                 return
@@ -321,15 +330,15 @@ class BFS:
         visited[s] = True
 
         while len(queue)>0:
-            u=queue.pop(0)
+            u=queue.pop(0)            
             if not net.graph.E.__contains__(u): # en caso de que no tenga aristas
                 continue
-            for v in net.graph.E[u]:#selecciono la arista                
+            for v in net.graph.E[u]:#selecciono la arista 
+                # visited[v[0]]=False
                 if visited.__contains__(v[0]):#si ya esa arista ha sido visitada se salta
                     continue
                 f(net,bit,time,u,v,queue,visited,collisions,edges)  #llamo la funcion de cambios en la red
-                visited[v[0]]=True
-                
+                visited[v[0]]=True                
             queue.append(v[0])    
         return collisions, edges
 
