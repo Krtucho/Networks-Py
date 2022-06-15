@@ -6,7 +6,7 @@ from cfg import SRC_MAC_START_INDEX, SRC_MAC_END_INDEX, DST_MAC_START_INDEX, DST
 class Frame:
     def __init__(self, state="active", src_mac="", dst_mac="", data_size=0, data="", check_method="CRC", check_bits=[])-> None:
         self.state = state # Estado actual de la trama, active si se esta transmitiendo, inactive si no se esta transmitiendo, enqueued si esta encolada, completed si se ha terminado de transmitir
-        self.index = 0 # Indice actual de los bits de la trama
+        self.index = -1 # Indice actual de los bits de la trama
         self.src_mac = src_mac
         self.dst_mac = dst_mac
         self.data_size = data_size
@@ -65,7 +65,7 @@ class Frame:
     def get_dst_mac(self)->str:
         """Devuelve la mac de destino que pertenece a la trama"""
         if self.index >= DST_MAC_END_INDEX:
-            mac_lst = self.bits[DST_MAC_START_INDEX:DST_MAC_END_INDEX+1]
+            mac_lst = [str(v) for v in self.bits[DST_MAC_START_INDEX:DST_MAC_END_INDEX+1]]
             return Utils.bin_to_hex("".join(mac_lst))
         return ""
     
