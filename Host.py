@@ -1,7 +1,7 @@
 from port import Port
 from device import Device
-from check import Check
-from frame import Frame
+from frame import *
+# from frame import Frame
 
 class Host(Device):
     def __init__(self, name, signal_time=10):
@@ -27,7 +27,7 @@ class Host(Device):
         self.actual_frame = -1 # Indice del frame actual de la lista de frames_list
         # Frames times
         self.last_updated_frame_time = 0 # Tiempo transcurrido desde que se envio el ultimo bit
-        
+        self.receiving_frame = None#=Frame()#ver despues por que no se construyo la trama vacia
         # Files
         self.data_name = f'output/{name}_data.txt'
         self._data = open(self.data_name, 'w') # Archivo de salida en la que se guardaran los logs
@@ -40,12 +40,6 @@ class Host(Device):
     def create_frame(self, bit):
         self.frames_list.append(Frame())
 
-    def read_bit(self, time, bit, port=1):
-        self.port.read_bit(bit)
-        
-        if actual_frame == -1:
-            
-    
     def change_detected(self, bit_to_cmp: int):
         change:bool = False
         if bit_to_cmp == -1: # S
@@ -106,7 +100,7 @@ class Host(Device):
     def write_data_in_file(self, frame:Frame, state="OK"):
         data_to_write = frame.get_data_bits()
         
-        data_msg += "".join(data_to_write) + "" if state == "OK" else "ERROR"
+        data_msg = "".join(data_to_write) + "" if state == "OK" else "ERROR"
         self.save_data(data_msg)
     
     def remove_last_frame(self):
@@ -142,16 +136,32 @@ class Host(Device):
             return False
         if not self.can_remove_frame():
             return False
-        
-        frame:Frame = self.frames_list.pop(self.actual_frame)
-        if len(self.frames_list) <= 0:
-            self.actual_frame = -1
-        dst_mac = and self.mac == frame.get_dst_mac()
+        #aqui lo hace con la lista de los frames que yo entiendo que son para enviar
+        frame:Frame = self.receiving_frame#self.frames_list.pop(self.actual_frame)
+        # if len(self.receiving_frame) <= 0:
+        #     self.actual_frame = -1
+        dst_mac = self.mac == frame.get_dst_mac()
         if not self.mac == dst_mac:
             return False
-        if Check.check(frame) and :
+        if Check.check(frame.get_data_bits(), frame.get_check_bits()):
             self.save_data(frame, "OK")
             return True
         else:
             self.save_data(frame, "ERROR")
             return True
+
+
+    def read_bit(self, time, bit:int, port=1):#se lee el bit actual y si es el final de la trama se manda a escribir en la data.txt
+        self.port.read_bit(bit)        
+        if not self.receiving_frame:
+            self.receiving_frame=Frame(state="receiving")
+        part_of_frame_completed_name,part_of_frame_completed_bits=self.receiving_frame.add_bit(bit)
+        if self.receiving_frame.actual_part  == 'end':
+            if self.check_frame():
+                self.write_data_in_file(self.receiving_frame)
+
+        
+
+       # if self.actual_frame == -1:#esta vacio el frame actual
+            
+        

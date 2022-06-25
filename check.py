@@ -1,4 +1,4 @@
-from frame import Frame
+# from frame import Frame
 from utils import Utils
 from crc import CrcCalculator, Crc8
 
@@ -7,21 +7,26 @@ class Check:
         self.method = method
     
     @staticmethod  
-    def check_frame_len(frame:Frame):
-        return len(frame.bits) == frame.data_size + 48 + frame.get_data_check_size()
+    # def check_frame_len(frame:Frame):
+    #     return len(frame.bits) == frame.data_size + 48 + frame.get_data_check_size()
               
     @staticmethod  
-    def check(self, frame:Frame):
-        if not check_frame_len(frame):
-            return False
+    def check(self, data, check_bits):
+        # if not self.check_frame_len(frame):
+        #     return False
         
-        data = bytes(frame.get_data_bits())
-        expected_checksum = Utils.bin_to_hex(frame.get_check_bits())
+        data = bytes(data)
+        expected_checksum = Utils.bin_to_hex(check_bits)
         crc_calculator = crc_calculator.calculate_checksum(data)
         checksum = CrcCalculator(Crc8.CCITT)
         
         return expected_checksum == checksum and crc_calculator.verify_checksum(data, expected_checksum)
         
+    @staticmethod
+    def create_check_bits(data:str):
+        expected_checksum = Utils.bin_to_hex(data)
+        return Utils.hex_to_bin(expected_checksum)
+
         
 # data = bytes([0, 1, 2, 3, 4, 5 ])
 # data = bytes([0, 1, 1,0,1,0,1,0 ])
