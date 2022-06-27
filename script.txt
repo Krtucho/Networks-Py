@@ -2,7 +2,10 @@
 0 mac pc A4B5
 1 create host pc2
 1 mac pc2 B111
-2 create switch sw1 2
+1 create host pc3
+1 mac pc3 A222
+2 create switch sw1 4
 3 connect sw1_2 pc2_1
 3 connect sw1_1 pc_1
+3 connect sw1_3 pc3_1
 4 send_frame pc B111 A612

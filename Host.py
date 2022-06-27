@@ -121,27 +121,27 @@ class Host(Device):
         #         self.
           
     def can_remove_frame(self):
-        if self.last_updated_frame_time >= 30:
+        # if self.last_updated_frame_time >= 30:
             
-            if self.actual_frame == -1:
-                return False
-            if len(self.frames_list) <= 0:
-                self.actual_frame = -1
-            return True
-        return False
+        if self.actual_frame == -1:
+            return False
+        if len(self.frames_list) <= 0:
+            self.actual_frame = -1
+        return True
+        # return False
                 
     def check_frame(self):
         """ """
-        if self.actual_frame == -1:
+        if self.receiving_frame == None:
             return False
-        if not self.can_remove_frame():
-            return False
+        # if not self.can_remove_frame():
+        #     return False
         #aqui lo hace con la lista de los frames que yo entiendo que son para enviar
         frame:Frame = self.receiving_frame#self.frames_list.pop(self.actual_frame)
         # if len(self.receiving_frame) <= 0:
         #     self.actual_frame = -1
-        dst_mac = self.mac == frame.get_dst_mac()
-        if not self.mac == dst_mac:
+        dst_mac = frame.get_dst_mac()
+        if not self.mac_address == dst_mac:
             return False
         if Check.check(frame.get_data_bits(), frame.get_check_bits()):
             self.save_data(frame, "OK")
