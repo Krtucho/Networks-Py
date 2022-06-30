@@ -42,7 +42,7 @@ class Switch(Device):
             port=self.macs_ports[mac]
             if(self.macs_ports[mac]==in_port):
                 return []
-            return port
+            return [port]
         else:
             return self.send_bit_to_all(bit,in_port)
 
@@ -62,8 +62,9 @@ class Switch(Device):
         if part_of_frame_completed_name == 'source_mac':#si se acaba de completar la mac de origen se agrega el puerto a la tabla de macs
             self.macs_ports[part_of_frame_completed_bits]=in_port
 
-        if not (frame.actual_part=='dest_mac'):#si ya se descubrio la mac de destino envio a esta mac
-            return self.send_bit_to_mac(bit,frame.get_dst_mac(),in_port)
+        if frame.index >= 15:
+            if self.macs_ports.__contains__(frame.get_dst_mac()): #frame.actual_part=='dest_mac'):#si ya se descubrio la mac de destino envio a esta mac
+                return self.send_bit_to_mac(bit,frame.get_dst_mac(),in_port)
             
         return self.send_bit_to_all(bit,in_port)
         

@@ -100,8 +100,8 @@ class Host(Device):
     
     def write_data_in_file(self, frame:Frame, state="OK"):
         data_to_write = frame.get_data_bits()
-        
-        data_msg = "".join([str(v) for v in data_to_write]) + "" if state == "OK" else "ERROR"
+        sender = frame.get_src_mac()
+        data_msg = "sender: " + sender + " " + "".join([str(v) for v in data_to_write]) + " OK" if state == "OK" else " ERROR"
         self.save_data(data_msg)
     
     def remove_last_receiving_frame(self):
@@ -155,7 +155,7 @@ class Host(Device):
         # if len(self.receiving_frame) <= 0:
         #     self.actual_frame = -1
         dst_mac = frame.get_dst_mac()
-        if not self.mac_address == dst_mac:
+        if not (self.mac_address == dst_mac or dst_mac == "FFFF"):
             return False
         check_ok = frame.check_frame()#Check.check(frame.get_data_bits(), frame.get_check_bits())
         if check_ok:
