@@ -5,6 +5,12 @@ class Utils:
         return f"0x{hex.lower()}" # hex variable will return with this format hex = '0xffa'
     
     @staticmethod
+    def parse_hex_value_for_check(hex:str)->str: # hex variable must have this format: A5B4
+        """Convierte un texto en hexadecimal de este formato:\nhex = 'A5B4'\nA este formato:hex = '0xffa'\n"""
+        return f"0x{hex.upper()}" # hex variable will return with this format hex = '0xffa'
+    
+    
+    @staticmethod
     def hex_to_dec(hex:str)->int:
         """Convierte un texto en hexadecimal a un numero entero"""
         # hex variable must have this format hex = '0xffa'
@@ -44,11 +50,14 @@ class Utils:
     @staticmethod
     def bin_to_dec(bin)->int:
         if isinstance(bin, str):
-            bin = int(bin)
-            
+            bin = int(bin, 2)
+            return bin
         return 0
 
     @staticmethod
     def dec_to_bin(dec:int):
         hexx=hex(dec)
-        return Utils.hex_to_bin(hexx[2:].upper())
+        output = Utils.hex_to_bin(hexx[2:].upper())
+        if len(output) % 8 != 0:
+            return "0000"+output
+        return output

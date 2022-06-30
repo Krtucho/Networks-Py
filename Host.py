@@ -1,6 +1,7 @@
 from port import Port
 from device import Device
 from frame import *
+# from check import Check
 # from frame import Frame
 
 class Host(Device):
@@ -100,19 +101,32 @@ class Host(Device):
     def write_data_in_file(self, frame:Frame, state="OK"):
         data_to_write = frame.get_data_bits()
         
-        data_msg = "".join(data_to_write) + "" if state == "OK" else "ERROR"
+        data_msg = "".join([str(v) for v in data_to_write]) + "" if state == "OK" else "ERROR"
         self.save_data(data_msg)
     
-    def remove_last_frame(self):
-        if self.last_updated_frame_time >= 30:
+    def remove_last_receiving_frame(self):
+            # if self.last_updated_frame_time >= 30:
             
-            if self.actual_frame == -1:
-                return False
-            self.frames_list.pop(self.actual_frame)
-            if len(self.frames_list) <= 0:
-                self.actual_frame = -1
-            return True
+        if self.receiving_frame == None:# or len(self.frames_list) <= 0:
+            return False
+        self.receiving_frame = None
+        # self.frames_list.pop(self.actual_frame)
+        # if len(self.frames_list) <= 0:
+        #     self.actual_frame = -1
+        
+        return True
+        
+    
+    def remove_last_sending_frame(self):
+        # if self.last_updated_frame_time >= 30:
+            
+        if self.actual_frame == -1 or len(self.frames_list) <= 0:
+            return False
+        self.frames_list.pop(self.actual_frame)
+        if len(self.frames_list) <= 0:
+            self.actual_frame = -1
         return False
+        
         # if self.actual_frame == -1:
         #     return False
         # if Check.check_frame_len(self.frames_list[self.actual_frame]):
@@ -143,11 +157,12 @@ class Host(Device):
         dst_mac = frame.get_dst_mac()
         if not self.mac_address == dst_mac:
             return False
-        if Check.check(frame.get_data_bits(), frame.get_check_bits()):
-            self.save_data(frame, "OK")
+        check_ok = frame.check_frame()#Check.check(frame.get_data_bits(), frame.get_check_bits())
+        if check_ok:
+            self.write_data_in_file(frame, "OK")
             return True
         else:
-            self.save_data(frame, "ERROR")
+            self.write_data_in_file(frame, "ERROR")
             return True
 
 
@@ -158,7 +173,8 @@ class Host(Device):
         part_of_frame_completed_name,part_of_frame_completed_bits=self.receiving_frame.add_bit(bit)
         if self.receiving_frame.actual_part  == 'end':
             if self.check_frame():
-                self.write_data_in_file(self.receiving_frame)
+                self.remove_last_receiving_frame()
+                # self.write_data_in_file(self.receiving_frame)
 
         
 
