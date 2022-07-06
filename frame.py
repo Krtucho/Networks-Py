@@ -25,40 +25,68 @@ class Frame:
 
         self.actual_part='dest_mac'#guarda la parte de la trama que se esta completando actualmente
      
+    def check_frame(self)-> bool:
+        return Check.check(self.get_data_bits(), self.get_check_bits())
+     
     def add_bit(self, bit:int):#agrega un bit a la trama y en caso de que se complete alguna de sus partes devuelve esta
         if not(bit==-1):
             self.bits.append(bit)
             self.index += 1
-        if self.index==SRC_MAC_END_INDEX:
+        if self.index==DST_MAC_END_INDEX:
             self.actual_part='source_mac'
             return 'dest_mac',self.get_dst_mac()
-        if self.index==DST_MAC_END_INDEX:
+        if self.index==SRC_MAC_END_INDEX:
             self.actual_part='data_size'
             return 'source_mac',self.get_src_mac()
-        if self.index==DST_MAC_END_INDEX+DATA_SIZE:
+        if self.index==SRC_MAC_END_INDEX+DATA_SIZE:
             self.actual_part='check_size'
             return 'data_size',self.get_data_size()
-        if self.index==DST_MAC_END_INDEX+DATA_SIZE+CHECK_SIZE:
-            self.actual_part='end'
-            return 'check_size',self.get_data_check_size()
+        if self.index==SRC_MAC_END_INDEX+DATA_SIZE+CHECK_SIZE:
+            self.actual_part='data_bits'
+            return 'check_size', self.get_check_size()
+        data_size = self.get_data_size_from_bits()
+        check_size = self.get_check_size_from_bits()
+        
+        if not data_size==None:
+            DATA_START_INDEX = 48
+            if self.index==DATA_START_INDEX+data_size:
+                self.actual_part='check_bits'
+                return 'data_bits',self.get_data_bits()
+            
+        if not check_size == None:  
+            check_bits = self.get_check_bits()
+            if check_bits != None:
+                CHECK_START_INDEX = self.get_data_size_from_bits()
+                check_size = self.get_check_size_from_bits()
+                CHECK_START_INDEX += 48
+                if self.index > CHECK_START_INDEX + check_size -1:
+                    return 'overflow',None
 
-        data_bits=self.get_data_bits()
-        if not(data_bits==None):
-            if len(data_bits)== Utils.bin_to_dec(self.get_data_size()):
-                return 'data_bits',data_bits
-                
-        check_bits=self.get_check_bits()
-        if not(check_bits==None):
-            if len(check_bits)== Utils.bin_to_dec(self.get_data_check_size()):
+                # if self.index==SRC_MAC_END_INDEX+DATA_SIZE+CHECK_SIZE+data_size+check_size:
+                self.actual_part='end'
                 return 'check_bits',check_bits
+        
+        # if self.index==SRC_MAC_END_INDEX+DATA_SIZE+CHECK_SIZE+data_size:
+        #     self.actual_part='end'
+        #     return 'check_size',self.get_check_bits()
 
-        return ['nothing',None]
+        # data_bits=self.get_data_bits()
+        # if not(data_bits==None):
+        #     if len(data_bits)== Utils.bin_to_dec(self.get_data_size()):
+        #         return 'data_bits',data_bits
+                
+        # check_bits=self.get_check_bits()
+        # if not(check_bits==None):
+        #     if len(check_bits)== Utils.bin_to_dec(self.get_check_size()):
+        #         return 'check_bits',check_bits
+
+        return 'nothing',None
 
     
     def get_src_mac(self)->str:
         """Devuelve la mac de origen que pertenece a la trama"""
         if self.index >= SRC_MAC_END_INDEX:
-            mac_lst = self.bits[SRC_MAC_START_INDEX:SRC_MAC_END_INDEX+1]
+            mac_lst = [str(v) for v in self.bits[SRC_MAC_START_INDEX:SRC_MAC_END_INDEX+1]]
             return Utils.bin_to_hex("".join(mac_lst))
         return ""
         
@@ -71,28 +99,53 @@ class Frame:
     
     def get_data_size(self)->int:
         DATA_SIZE_START_INDEX = 32
-        if self.index >= DATA_SIZE_START_INDEX:
+        if self.index >= DATA_SIZE_START_INDEX+8:
             # return int("".joint(self.bits[DATA_SIZE_START_INDEX:DATA_SIZE_START_INDEX+8]))
             return self.bits[DATA_SIZE_START_INDEX:DATA_SIZE_START_INDEX+8]
         return None
         
-    def get_data_check_size(self)->int:
-        DATA_CHECK_START_INDEX = 40
-        if self.index >= DATA_CHECK_START_INDEX:
+    def get_check_size(self)->int:
+        CHECK_START_INDEX = self.get_data_size_from_bits()
+        if CHECK_START_INDEX == None:
+            return None
+        CHECK_START_INDEX += 48
+        # DATA_CHECK_START_INDEX = 40
+        if self.index >= CHECK_START_INDEX:
             # return int("".joint(self.bits[DATA_CHECK_START_INDEX:DATA_CHECK_START_INDEX+8]))
-            return self.bits[DATA_CHECK_START_INDEX:DATA_CHECK_START_INDEX+8]
+            return self.bits[-8]
         return None
         
+    def get_data_size_from_bits(self)->int:
+        bits = self.get_data_size()
+        if bits == None:
+            return None
+        return Utils.bin_to_dec("".join([str(v) for v in bits]))
+
+    
+    def get_check_size_from_bits(self)->int:
+        bits = self.get_check_size()
+        if bits == None:
+            return None
+        return 8
+        # return Utils.bin_to_dec("".join([str(v) for v in bits]))
+    
     def get_data_bits(self)->list:
         DATA_START_INDEX = 48
         if self.index >= DATA_START_INDEX:
-            return self.bits[DATA_START_INDEX:DATA_START_INDEX+self.data_size]
+            data_size = self.get_data_size_from_bits()
+            if self.index >= DATA_START_INDEX+data_size:
+                return self.bits[DATA_START_INDEX:DATA_START_INDEX+data_size]
         return None
         
     def get_check_bits(self)->list:
-        CHECK_START_INDEX = 48+self.data_size
+        CHECK_START_INDEX = self.get_data_size_from_bits()
+        if CHECK_START_INDEX == None:
+            return None
+        CHECK_START_INDEX += 48
         if self.index >= CHECK_START_INDEX:
-            return self.bits[CHECK_START_INDEX:CHECK_START_INDEX+CHECK_SIZE]
+            check_size = self.get_check_size_from_bits()
+            if self.index == CHECK_START_INDEX + check_size -1:
+                return self.bits[CHECK_START_INDEX:CHECK_START_INDEX+check_size]
         return None
 
     def clear_frame(self):

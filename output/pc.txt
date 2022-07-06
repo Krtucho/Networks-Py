@@ -38,39 +38,107 @@
 374 pc_1 send 0 ok
 384 pc_1 send 0 ok
 394 pc_1 send 0 ok
-404 pc_1 send 1 ok
+404 pc_1 send 0 ok
 414 pc_1 send 0 ok
 424 pc_1 send 0 ok
 434 pc_1 send 0 ok
 444 pc_1 send 1 ok
 454 pc_1 send 0 ok
-464 pc_1 send 1 ok
+464 pc_1 send 0 ok
 474 pc_1 send 0 ok
-484 pc_1 send 0 ok
-494 pc_1 send 1 ok
+484 pc_1 send 1 ok
+494 pc_1 send 0 ok
 504 pc_1 send 1 ok
 514 pc_1 send 0 ok
 524 pc_1 send 0 ok
-534 pc_1 send 0 ok
-544 pc_1 send 0 ok
-554 pc_1 send 1 ok
+534 pc_1 send 1 ok
+544 pc_1 send 1 ok
+554 pc_1 send 0 ok
 564 pc_1 send 0 ok
 574 pc_1 send 0 ok
-584 pc_1 send 1 ok
-594 pc_1 send 0 ok
-604 pc_1 send 1 ok
+584 pc_1 send 0 ok
+594 pc_1 send 1 ok
+604 pc_1 send 0 ok
 614 pc_1 send 0 ok
 624 pc_1 send 1 ok
 634 pc_1 send 0 ok
-644 pc_1 send 0 ok
+644 pc_1 send 1 ok
 654 pc_1 send 1 ok
 664 pc_1 send 1 ok
 674 pc_1 send 0 ok
 684 pc_1 send 0 ok
-694 pc_1 send 0 ok
-704 pc_1 send 0 ok
+694 pc_1 send 1 ok
+704 pc_1 send 1 ok
 714 pc_1 send 1 ok
-724 pc_1 send 0 ok
-734 pc_1 send 0 ok
-744 pc_1 send 1 ok
-754 pc_1 send 0 ok
+724 pc_1 receive 1
+734 pc_1 receive 1
+744 pc_1 receive 1
+754 pc_1 receive 1
+764 pc_1 receive 1
+774 pc_1 receive 1
+784 pc_1 receive 1
+794 pc_1 receive 1
+804 pc_1 receive 1
+814 pc_1 receive 1
+824 pc_1 receive 1
+834 pc_1 receive 1
+844 pc_1 receive 1
+854 pc_1 receive 1
+864 pc_1 receive 1
+874 pc_1 receive 1
+884 pc_1 receive 1
+894 pc_1 receive 0
+904 pc_1 receive 1
+914 pc_1 receive 1
+924 pc_1 receive 0
+934 pc_1 receive 0
+944 pc_1 receive 0
+954 pc_1 receive 1
+964 pc_1 receive 0
+974 pc_1 receive 0
+984 pc_1 receive 0
+994 pc_1 receive 1
+1004 pc_1 receive 0
+1014 pc_1 receive 0
+1024 pc_1 receive 0
+1034 pc_1 receive 1
+1044 pc_1 receive 0
+1054 pc_1 receive 0
+1064 pc_1 receive 0
+1074 pc_1 receive 1
+1084 pc_1 receive 0
+1094 pc_1 receive 0
+1104 pc_1 receive 0
+1114 pc_1 receive 0
+1124 pc_1 receive 0
+1134 pc_1 receive 0
+1144 pc_1 receive 0
+1154 pc_1 receive 0
+1164 pc_1 receive 1
+1174 pc_1 receive 0
+1184 pc_1 receive 0
+1194 pc_1 receive 0
+1204 pc_1 receive 1
+1214 pc_1 receive 0
+1224 pc_1 receive 1
+1234 pc_1 receive 0
+1244 pc_1 receive 0
+1254 pc_1 receive 1
+1264 pc_1 receive 1
+1274 pc_1 receive 0
+1284 pc_1 receive 0
+1294 pc_1 receive 0
+1304 pc_1 receive 0
+1314 pc_1 receive 1
+1324 pc_1 receive 0
+1334 pc_1 receive 0
+1344 pc_1 receive 1
+1354 pc_1 receive 0
+1364 pc_1 receive 1
+1374 pc_1 receive 1
+1384 pc_1 receive 1
+1394 pc_1 receive 0
+1404 pc_1 receive 0
+1414 pc_1 receive 1
+1424 pc_1 receive 1
+1434 pc_1 receive 1

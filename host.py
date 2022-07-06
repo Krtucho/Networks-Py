@@ -1,6 +1,7 @@
 from port import Port
 from device import Device
 from frame import *
+# from check import Check
 # from frame import Frame
 
 class Host(Device):
@@ -31,6 +32,11 @@ class Host(Device):
         # Files
         self.data_name = f'output/{name}_data.txt'
         self._data = open(self.data_name, 'w') # Archivo de salida en la que se guardaran los logs
+
+        #IP Packets
+        self.ip_packets_list:list = [] # Lista con los ip_packets a enviar
+        
+
 
     def add_frame(self, frame:Frame):
         if len(self.frames_list) == 0:
@@ -99,20 +105,33 @@ class Host(Device):
     
     def write_data_in_file(self, frame:Frame, state="OK"):
         data_to_write = frame.get_data_bits()
-        
-        data_msg = "".join(data_to_write) + "" if state == "OK" else "ERROR"
+        sender = frame.get_src_mac()
+        data_msg = "sender: " + sender + " " + "".join([str(v) for v in data_to_write]) + " OK" if state == "OK" else " ERROR"
         self.save_data(data_msg)
     
-    def remove_last_frame(self):
-        if self.last_updated_frame_time >= 30:
+    def remove_last_receiving_frame(self):
+            # if self.last_updated_frame_time >= 30:
             
-            if self.actual_frame == -1:
-                return False
-            self.frames_list.pop(self.actual_frame)
-            if len(self.frames_list) <= 0:
-                self.actual_frame = -1
-            return True
+        if self.receiving_frame == None:# or len(self.frames_list) <= 0:
+            return False
+        self.receiving_frame = None
+        # self.frames_list.pop(self.actual_frame)
+        # if len(self.frames_list) <= 0:
+        #     self.actual_frame = -1
+        
+        return True
+        
+    
+    def remove_last_sending_frame(self):
+        # if self.last_updated_frame_time >= 30:
+            
+        if self.actual_frame == -1 or len(self.frames_list) <= 0:
+            return False
+        self.frames_list.pop(self.actual_frame)
+        if len(self.frames_list) <= 0:
+            self.actual_frame = -1
         return False
+        
         # if self.actual_frame == -1:
         #     return False
         # if Check.check_frame_len(self.frames_list[self.actual_frame]):
@@ -121,33 +140,34 @@ class Host(Device):
         #         self.
           
     def can_remove_frame(self):
-        if self.last_updated_frame_time >= 30:
+        # if self.last_updated_frame_time >= 30:
             
-            if self.actual_frame == -1:
-                return False
-            if len(self.frames_list) <= 0:
-                self.actual_frame = -1
-            return True
-        return False
+        if self.actual_frame == -1:
+            return False
+        if len(self.frames_list) <= 0:
+            self.actual_frame = -1
+        return True
+        # return False
                 
     def check_frame(self):
         """ """
-        if self.actual_frame == -1:
+        if self.receiving_frame == None:
             return False
-        if not self.can_remove_frame():
-            return False
+        # if not self.can_remove_frame():
+        #     return False
         #aqui lo hace con la lista de los frames que yo entiendo que son para enviar
         frame:Frame = self.receiving_frame#self.frames_list.pop(self.actual_frame)
         # if len(self.receiving_frame) <= 0:
         #     self.actual_frame = -1
-        dst_mac = self.mac == frame.get_dst_mac()
-        if not self.mac == dst_mac:
+        dst_mac = frame.get_dst_mac()
+        if not (self.mac_address == dst_mac or dst_mac == "FFFF"):
             return False
-        if Check.check(frame.get_data_bits(), frame.get_check_bits()):
-            self.save_data(frame, "OK")
+        check_ok = frame.check_frame()#Check.check(frame.get_data_bits(), frame.get_check_bits())
+        if check_ok:
+            self.write_data_in_file(frame, "OK")
             return True
         else:
-            self.save_data(frame, "ERROR")
+            self.write_data_in_file(frame, "ERROR")
             return True
 
 
@@ -158,10 +178,44 @@ class Host(Device):
         part_of_frame_completed_name,part_of_frame_completed_bits=self.receiving_frame.add_bit(bit)
         if self.receiving_frame.actual_part  == 'end':
             if self.check_frame():
-                self.write_data_in_file(self.receiving_frame)
+                self.remove_last_receiving_frame()
+                # self.write_data_in_file(self.receiving_frame)
 
         
 
        # if self.actual_frame == -1:#esta vacio el frame actual
             
-        
+
+
+    #se le pasa el ip de destino y los datoa a enviar y crea un paquete ip con esto
+    #ademas lo adiciona a la lista de paquetes ip a enviar
+    def create_ip_packet():
+        pass
+
+    #se le pasa in paquete ip, crea un frame con este y lo manda a enviar
+    #adiciona este frame a la lista de frames a enviar y ademas comienza su envio
+    def create_frame_from_ip_packet():
+        pass
+
+    #por aqui se envia in paquete ip, si el ip de destino no pertenece a la tabla de rutas del host
+    #se hace una peticion arp para detectar la mac correspondiente al ip de destino
+    def send_ip_packet(self,ip_destino:str):
+        pass
+
+    #metodo encargado de enviar la peticion arpq
+    def send_arpq(self, ip_destino:str):
+        pass
+
+    #metodo encargado de recibir la respuesta arpr
+    def receive_arpr(self,frame:Frame):
+        pass
+
+    #metodo que envia la respuesta de la peticion arpq
+    def send_arpr(self, tiempo:int, mac_destino:str):
+        pass
+
+    #metodo que recibe la peticion arpq y verifica si hay que dar la respuesta
+    def receive_arpq_petition(self,frame:Frame):
+       pass
+
+    

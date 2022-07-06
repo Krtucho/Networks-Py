@@ -160,13 +160,34 @@ class Net:
 
         pass
 
+
+
+
+    def send_frame(host:Host,instruction:list,host_sending):
+        host.writing = True # Este Host esta escribiendo
+                # Added Lines
+        dst_mac = instruction[3]    # Mac de destino
+        # temp_data = "" + instruction[4]
+        # data, data_size = Frame.parse_frame_data(instruction[4],method=1)
+        data, data_size= Frame.parse_frame_data(instruction[4],method=1)
+        host.add_frame(Frame(state="inactive", src_mac=host.mac_address, dst_mac=dst_mac, data_size=data_size,
+                                data=data))    # Annadiendo Frame a lista de frames del host
+        #End Added Lines
+        # bits = [int(bit) for bit in instruction[3]] # 
+        host.bits_to_send += host.frames_list[-1].bits
+        host_sending.append(host)
+
+    def send_packet():
+        pass
+
+
     def send_many(self, send_list: list, time:int):
         """Procesa todas las instrucciones de send y de send_frame. Si el host comienza a enviar en este ms se verifica si ocurre colision, si ocurre se pone en pendiente, sino, envia.
         Tambien se procesan todos aquellos host que estan en estado de pendiente y se ponen a enviar si no ocurre colision. Por ultimo, si algun host se encontraba transmitiendo, este continuara transmitiendo xq tiene mayor precedencia que los demas."""
         host_sending = []
         # Hosts que comenzaran a estar en writing
         for instruction in send_list: # Iterando por las instrucciones de enviar en la lista que contiene al inicio las instrucciones de send y luego las de send_frame
-            if instruction[1] == "send":
+            if instruction[1] == "send":#se hace el send bit a bit
                 host = self.my_device(self.graph.search_port(instruction[2]))
                 host.writing = True
                 bits = [int(bit) for bit in instruction[3]]
@@ -174,18 +195,26 @@ class Net:
                 host_sending.append(host)
             elif instruction[1] == "send_frame": # Creamos el Frame en el host a enviar, annadimos cada bit de la trama a enviar a los bits que tiene q enviar el host, annadimos este host a la lista de host que se encuentran enviando
                 host:Host = self.my_device(self.graph.search_port(instruction[2])) # Busco el host que commenzara a enviar
-                host.writing = True # Este Host esta escribiendo
-                # Added Lines
-                dst_mac = instruction[3]    # Mac de destino
-                # temp_data = "" + instruction[4]
-                # data, data_size = Frame.parse_frame_data(instruction[4],method=1)
-                data, data_size= Frame.parse_frame_data(instruction[4],method=1)
-                host.add_frame(Frame(state="inactive", src_mac=host.mac_address, dst_mac=dst_mac, data_size=data_size,
-                                     data=data))    # Annadiendo Frame a lista de frames del host
-                #End Added Lines
-                # bits = [int(bit) for bit in instruction[3]] # 
-                host.bits_to_send += host.frames_list[-1].bits
-                host_sending.append(host)
+                ###############################################################
+                # # host.writing = True # Este Host esta escribiendo
+                # # # Added Lines
+                # # dst_mac = instruction[3]    # Mac de destino
+                # # # temp_data = "" + instruction[4]
+                # # # data, data_size = Frame.parse_frame_data(instruction[4],method=1)
+                # # data, data_size= Frame.parse_frame_data(instruction[4],method=1)
+                # # host.add_frame(Frame(state="inactive", src_mac=host.mac_address, dst_mac=dst_mac, data_size=data_size,
+                # #                      data=data))    # Annadiendo Frame a lista de frames del host
+                # # #End Added Lines
+                # # # bits = [int(bit) for bit in instruction[3]] # 
+                # # host.bits_to_send += host.frames_list[-1].bits
+
+                # # host_sending.append(host)
+                ##############################################################
+                self.send_frame(host,instruction,host_sending)
+            elif instruction[1] == "send_packet":
+                host:Host = self.my_device(self.graph.search_port(instruction[2])) # Busco el host que commenzara a enviar
+
+                pass
 
         # Hosts que estaban en pending
         for host in self.hosts.values(): # los hosts que estaban esperando para comenzar a enviar
@@ -302,6 +331,7 @@ class BFS:
                 ports_to_send = actual_device_v.send_bit(v[0],bit)#pide al switch por los puertos que va a enviar
                 [queue.append(p) for p in ports_to_send]#agrega a la cola todos los puertos por los que va a enviar el switch
 
+            
             else:#si ya se habia llegado a este switch, no se necesita que se vuelva a llegar
                 return
 

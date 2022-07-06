@@ -14,6 +14,8 @@ def create_device(type="host", name="", n_ports=1):
         return Hub(name)
     if type == "switch":
         return Switch(name)
+    # if type == "router":
+    #     return Rou
     return None
 
 # def get_inst(lists: list, time: int)->list:

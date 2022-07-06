@@ -29,3 +29,116 @@
 284 pc2_1 receive 0
 294 pc2_1 receive 1
 304 pc2_1 receive 0
+314 pc2_1 receive 1
+324 pc2_1 receive 0
+334 pc2_1 receive 0
+344 pc2_1 receive 0
+354 pc2_1 receive 1
+364 pc2_1 receive 0
+374 pc2_1 receive 0
+384 pc2_1 receive 0
+394 pc2_1 receive 0
+404 pc2_1 receive 0
+414 pc2_1 receive 0
+424 pc2_1 receive 0
+434 pc2_1 receive 0
+444 pc2_1 receive 1
+454 pc2_1 receive 0
+464 pc2_1 receive 0
+474 pc2_1 receive 0
+484 pc2_1 receive 1
+494 pc2_1 receive 0
+504 pc2_1 receive 1
+514 pc2_1 receive 0
+524 pc2_1 receive 0
+534 pc2_1 receive 1
+544 pc2_1 receive 1
+554 pc2_1 receive 0
+564 pc2_1 receive 0
+574 pc2_1 receive 0
+584 pc2_1 receive 0
+594 pc2_1 receive 1
+604 pc2_1 receive 0
+614 pc2_1 receive 0
+624 pc2_1 receive 1
+634 pc2_1 receive 0
+644 pc2_1 receive 1
+654 pc2_1 receive 1
+664 pc2_1 receive 1
+674 pc2_1 receive 0
+684 pc2_1 receive 0
+694 pc2_1 receive 1
+704 pc2_1 receive 1
+714 pc2_1 receive 1
+724 pc2_1 send 1 ok
+734 pc2_1 send 1 ok
+744 pc2_1 send 1 ok
+754 pc2_1 send 1 ok
+764 pc2_1 send 1 ok
+774 pc2_1 send 1 ok
+784 pc2_1 send 1 ok
+794 pc2_1 send 1 ok
+804 pc2_1 send 1 ok
+814 pc2_1 send 1 ok
+824 pc2_1 send 1 ok
+834 pc2_1 send 1 ok
+844 pc2_1 send 1 ok
+854 pc2_1 send 1 ok
+864 pc2_1 send 1 ok
+874 pc2_1 send 1 ok
+884 pc2_1 send 1 ok
+894 pc2_1 send 0 ok
+904 pc2_1 send 1 ok
+914 pc2_1 send 1 ok
+924 pc2_1 send 0 ok
+934 pc2_1 send 0 ok
+944 pc2_1 send 0 ok
+954 pc2_1 send 1 ok
+964 pc2_1 send 0 ok
+974 pc2_1 send 0 ok
+984 pc2_1 send 0 ok
+994 pc2_1 send 1 ok
+1004 pc2_1 send 0 ok
+1014 pc2_1 send 0 ok
+1024 pc2_1 send 0 ok
+1034 pc2_1 send 1 ok
+1044 pc2_1 send 0 ok
+1054 pc2_1 send 0 ok
+1064 pc2_1 send 0 ok
+1074 pc2_1 send 1 ok
+1084 pc2_1 send 0 ok
+1094 pc2_1 send 0 ok
+1104 pc2_1 send 0 ok
+1114 pc2_1 send 0 ok
+1124 pc2_1 send 0 ok
+1134 pc2_1 send 0 ok
+1144 pc2_1 send 0 ok
+1154 pc2_1 send 0 ok
+1164 pc2_1 send 1 ok
+1174 pc2_1 send 0 ok
+1184 pc2_1 send 0 ok
+1194 pc2_1 send 0 ok
+1204 pc2_1 send 1 ok
+1214 pc2_1 send 0 ok
+1224 pc2_1 send 1 ok
+1234 pc2_1 send 0 ok
+1244 pc2_1 send 0 ok
+1254 pc2_1 send 1 ok
+1264 pc2_1 send 1 ok
+1274 pc2_1 send 0 ok
+1284 pc2_1 send 0 ok
+1294 pc2_1 send 0 ok
+1304 pc2_1 send 0 ok
+1314 pc2_1 send 1 ok
+1324 pc2_1 send 0 ok
+1334 pc2_1 send 0 ok
+1344 pc2_1 send 1 ok
+1354 pc2_1 send 0 ok
+1364 pc2_1 send 1 ok
+1374 pc2_1 send 1 ok
+1384 pc2_1 send 1 ok
+1394 pc2_1 send 0 ok
+1404 pc2_1 send 0 ok
+1414 pc2_1 send 1 ok
+1424 pc2_1 send 1 ok
+1434 pc2_1 send 1 ok

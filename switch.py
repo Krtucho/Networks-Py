@@ -1,3 +1,4 @@
+from sre_parse import State
 from port import Port
 from device import Device
 # from net import Net
@@ -10,14 +11,18 @@ class Switch(Device):
 
         # self.ports[f"{self.name}_{0}"] = Port(f"{self.name}_{0}")
         # self.s = self.ports[f"{self.name}_{0}"]
-        self.macs_for_ports={}
+        self.macs_ports={}#diccionario en que se indexa en una mac y devuelve el puerto por donde se alcanza
+        self.frame_in_for_port={}#diccionario en el que se indexa por puerto y se obtiene el frame que esta entrando por ese puerto
+        self.frame_out_for_port={}#diccionario en el que se indexa por puerto y se obtiene el frame que esta saliendo por ese puerto  
+
         for i in range(1, int(n_ports)+1):
             temp_name = f"{self.name}_{str(i)}"
             self.ports[temp_name] = Port(temp_name)
-            self.macs_ports={}#diccionario en que se indexa en una mac y devuelve el puerto por donde se alcanza
+            # self.macs_ports={}#diccionario en que se indexa en una mac y devuelve el puerto por donde se alcanza
             #self.macs_for_ports[temp_name]=[]#creando un diccionario que tiene como key los nombres de los puertos y por cada uno una lista de las macs que se acceden desde ahi
-            self.frame_in_for_port={}#diccionario en el que se indexa por puerto y se obtiene el frame que esta entrando por ese puerto
-            self.frame_out_for_port={}#diccionario en el que se indexa por puerto y se obtiene el frame que esta saliendo por ese puerto  
+            
+
+
 
     def read_bit(self, bit, port):
         self.ports[port].read_bit(bit)
@@ -41,7 +46,7 @@ class Switch(Device):
             port=self.macs_ports[mac]
             if(self.macs_ports[mac]==in_port):
                 return []
-            return port
+            return [port]
         else:
             return self.send_bit_to_all(bit,in_port)
 
@@ -50,7 +55,7 @@ class Switch(Device):
         #     frame:Frame=self.frame_in_for_port[in_port]
         # else:
         if not self.frame_in_for_port.__contains__(in_port):
-            temp_frame:Frame = Frame()
+            temp_frame:Frame = Frame(state="receiving")
             self.frame_in_for_port[in_port]=temp_frame
             # temp_frame.bits.append(bit)
 
@@ -58,12 +63,23 @@ class Switch(Device):
         part_of_frame_completed_name,part_of_frame_completed_bits=frame.add_bit(bit)
         # if part_of_frame_completed_name == 'dest_mac':#si se acaba de completar la mac de destino
         #     pass
-        if part_of_frame_completed_name == 'dest_mac':#si se acaba de completar la mac de origen se agrega el puerto a la tabla de macs
+        if part_of_frame_completed_name == 'source_mac':#si se acaba de completar la mac de origen se agrega el puerto a la tabla de macs
             self.macs_ports[part_of_frame_completed_bits]=in_port
 
-        if not (frame.actual_part=='dest_mac'):#si ya se descubrio la mac de destino envio a esta mac
-            return self.send_bit_to_mac(bit,frame.get_dst_mac(),in_port)
-            
+        if frame.index >= 15:
+            if part_of_frame_completed_name == 'overflow':
+                temp_frame:Frame = Frame(state="receiving")
+                self.frame_in_for_port[in_port]=temp_frame
+
+            # if part_of_frame_completed_name=='check_bits':#si es el ultimo bit del frame que se esta recibiendo vacio envio a la mac y ademas vacio el frame de entrada de este puerto
+                # self.send_bit_to_mac(bit,frame.get_dst_mac(),in_port)
+                # self.frame_in_for_port[in_port]=Frame()
+                # return
+
+            if self.macs_ports.__contains__(frame.get_dst_mac()): #frame.actual_part=='dest_mac'):#si ya se descubrio la mac de destino envio a esta mac
+                self.send_bit_to_mac(bit,frame.get_dst_mac(),in_port)
+        
+        
         return self.send_bit_to_all(bit,in_port)
         
         # if self.macs_ports[frame.get_dst_mac()]:
