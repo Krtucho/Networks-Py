@@ -10,4 +10,3 @@
 3 connect sw1_3 pc3_1
 4 send_frame pc B111 A612
 724 send_frame pc2 A4B5 A612
-1200 send_frame pc2 FFFF A612

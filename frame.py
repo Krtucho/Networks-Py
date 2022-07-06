@@ -56,9 +56,15 @@ class Frame:
         if not check_size == None:  
             check_bits = self.get_check_bits()
             if check_bits != None:
+                CHECK_START_INDEX = self.get_data_size_from_bits()
+                check_size = self.get_check_size_from_bits()
+                CHECK_START_INDEX += 48
+                if self.index > CHECK_START_INDEX + check_size -1:
+                    return 'overflow',None
+
                 # if self.index==SRC_MAC_END_INDEX+DATA_SIZE+CHECK_SIZE+data_size+check_size:
                 self.actual_part='end'
-                return 'check_bits',self.get_check_bits()
+                return 'check_bits',check_bits
         
         # if self.index==SRC_MAC_END_INDEX+DATA_SIZE+CHECK_SIZE+data_size:
         #     self.actual_part='end'
@@ -74,7 +80,7 @@ class Frame:
         #     if len(check_bits)== Utils.bin_to_dec(self.get_check_size()):
         #         return 'check_bits',check_bits
 
-        return ['nothing',None]
+        return 'nothing',None
 
     
     def get_src_mac(self)->str:
@@ -138,7 +144,7 @@ class Frame:
         CHECK_START_INDEX += 48
         if self.index >= CHECK_START_INDEX:
             check_size = self.get_check_size_from_bits()
-            if self.index >= CHECK_START_INDEX + check_size -1:
+            if self.index == CHECK_START_INDEX + check_size -1:
                 return self.bits[CHECK_START_INDEX:CHECK_START_INDEX+check_size]
         return None
 

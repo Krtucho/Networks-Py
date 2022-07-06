@@ -156,6 +156,7 @@ class Host(Device):
         #     self.actual_frame = -1
         dst_mac = frame.get_dst_mac()
         if not (self.mac_address == dst_mac or dst_mac == "FFFF"):
+            self.remove_last_receiving_frame()
             return False
         check_ok = frame.check_frame()#Check.check(frame.get_data_bits(), frame.get_check_bits())
         if check_ok:
