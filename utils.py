@@ -71,5 +71,5 @@ class Utils:
         for i in host_ip_dest_temp:
             for j in i:
                 host_ip_dest.append(int(j))
-        return host_ip_dest
+        return host_ip_dest, ip_dest
 #########################################

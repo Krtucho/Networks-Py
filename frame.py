@@ -136,6 +136,14 @@ class Frame:
             if self.index >= DATA_START_INDEX+data_size:
                 return self.bits[DATA_START_INDEX:DATA_START_INDEX+data_size]
         return None
+       
+    def edit_data_bits(self, bits):
+        data_size = self.get_data_size_from_bits()
+        if data_size <= len(bits):
+            return None
+        
+        for i in range(48, 48+data_size):
+            self.bits[i] = bits[i]
         
     def get_check_bits(self)->list:
         CHECK_START_INDEX = self.get_data_size_from_bits()

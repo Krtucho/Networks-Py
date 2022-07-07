@@ -41,11 +41,19 @@ class Router(Device):
     def add_route(self, route: Route):
         self.routes_table[route.mask] = route # Las mascaras tienen prioridad, asi que indexamos por las mascaras
      
-    def ip_and_mask(self, ip, mask):
-         
+    def ip_and_mask(self, ip, mask, destination):
+        _, mask_tr = ip_str_to_ip_bit(mask)
+        _, dest_tr = ip_str_to_ip_bit(destination)
+        
+        and_lst = [0,0,0,0]
+        
+        for i in range(0, 4):
+            and_lst[i] = ip[i] & mask_tr[i]
+        
+        return mask_tr[0] == dest_tr
      
     # Busca dado un puerto de entrada y un paquete ip retorna el puerto del router por donde debe de seguir
-    def forward_packet(self, in_port, ip_packet: IP_Packet):
+    def forward_packet(self, in_port, ip_packet: IP_Packet, frame:Frame):
         dst_ip = ip_packet.get_dst_ip()
         if dst_ip == None:
             return None
@@ -58,9 +66,11 @@ class Router(Device):
         for item in items:
         # Aplico AND entre ip del destino en ip_packet y cada mascara ordenadamente
             for temp_route in item:
-                if self.ip_and_mask(dst_ip, temp_route.mask):
+                if self.ip_and_mask(dst_ip, temp_route.mask, temp_route.destination):
                     if temp_route.gateway == "0.0.0.0":
-                        return f"{self.name}_{str(temp_route.interface)}"
+                        return self.ports[f"{self.name}_{str(temp_route.interface)}"]
+                    else:
+                        self.
         
             
     def read_bit(self, bit, port):

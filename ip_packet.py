@@ -18,6 +18,12 @@ class IP_Packet:
             return self.bits[:32]
         return None
     
+    def edit_dst_ip(self, bits):
+        if len(bits) < 32:
+            return None
+        for i in range(0, 32):
+            self.bits[i] = bits[i]
+    
     def get_src_ip(self):
         SRC_IP_END_INDEX = 63
         if self.index >= SRC_IP_END_INDEX:
