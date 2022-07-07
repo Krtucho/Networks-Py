@@ -63,9 +63,9 @@ class Net:
             target_host.set_ip_mask(ip_address_tr, mask_tr) # Asignando mac
 
     # Mac Address
-    def set_mac(self, host: str, mac_address: str):
-        target_host:Host = self.my_device_str(host + "_1") # Buscando Host al que le vamos a asignar la Mac
-        target_host.mac_address = mac_address # Asignando mac
+    # def set_mac(self, host: str, mac_address: str):
+    #     target_host:Host = self.my_device_str(host + "_1") # Buscando Host al que le vamos a asignar la Mac
+    #     target_host.mac_address = mac_address # Asignando mac
     
 #region Utiles
     
