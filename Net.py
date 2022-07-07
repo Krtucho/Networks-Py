@@ -7,6 +7,7 @@ from switch import Switch
 from router import Router
 from frame import Frame
 # from bfs import BFS 
+from utils import Utils
 import random
 
 class Net:
@@ -42,9 +43,25 @@ class Net:
         self.routers[router.name] = router   # Agregando el Router al dicionario que contiene a todos los routers
     
     # Mac Address
-    def set_mac(self, host: str, mac_address: str):
-        target_host:Host = self.my_device_str(host + "_1") # Buscando Host al que le vamos a asignar la Mac
-        target_host.mac_address = mac_address # Asignando mac
+    def set_mac(self, host: str, mac_address: str, interface=0):
+        if interface > 0:
+            target_router:Router = self.my_device_str(host + "_"+interface) # Buscando Router al que le vamos a asignar la Mac
+            target_router.set_mac(interface, mac_address)
+        else:
+            target_host:Host = self.my_device_str(host + "_1") # Buscando Host al que le vamos a asignar la Mac
+            target_host.mac_address = mac_address # Asignando mac
+    
+    def set_ip(self, host: str, ip_address: str, mask: str, interface=0):
+        _, ip_address_tr = Utils.ip_str_to_ip_bit(ip_address)
+        _, mask_tr = Utils.ip_str_to_ip_bit(mask)
+        
+        if interface > 0:
+            target_router:Router = self.my_device_str(host + "_"+interface) # Buscando Router al que le vamos a asignar la Mac
+            target_router.set_ip(interface, ip_address_tr, mask_tr)
+        else:
+            target_host:Host = self.my_device_str(host + "_1") # Buscando Host al que le vamos a asignar la Mac
+            target_host.set_ip_mask(ip_address_tr, mask_tr) # Asignando mac
+    
     
 #region Utiles
     

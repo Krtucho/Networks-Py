@@ -70,6 +70,6 @@ class Utils:
         host_ip_dest=[]
         for i in host_ip_dest_temp:
             for j in i:
-                host_ip_dest.append(j)
+                host_ip_dest.append(int(j))
         return host_ip_dest
 #########################################

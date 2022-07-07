@@ -1,9 +1,10 @@
 from frame import Frame
 
 class PortData:
-    def __init__(self, ip="", mac=""):
+    def __init__(self, ip="", mac="", mask=""):
         self.ip = ip
         self.mac = mac
+        self.mask = mask
         
         # Frames que estan entrando, es decir, que el router recibe
         self.in_frames = []
@@ -28,8 +29,9 @@ class PortData:
             self.out_frame_index = 0
         self.out_frames.append(frame)
         
-    def set_ip(self, ip):
+    def set_ip(self, ip, mask):
         self.ip = ip
+        self.mask = mask
         
     def set_mac(self, mac):
         self.mac = mac
