@@ -1,7 +1,0 @@
-from utils import Utils
-
-ip = Utils.ip_str_to_ip_bit("192.168.1.1")
-
-print(ip)
-
-[].sort()
