@@ -1,14 +1,18 @@
-from tkinter import N
+# from tkinter import N
+from fileinput import _HasReadlineAndFileno
 from graph import Graph
 from host import Host
 from hub import Hub
+from ip_packet import IP_Packet
 from port import Port
 from switch import Switch
 from router import Router
+from route import Route
 from frame import Frame
 # from bfs import BFS 
-from utils import Utils
 import random
+from utils import Utils
+
 
 class Net:
     def __init__(self, signal_time:int)->None:
@@ -17,7 +21,8 @@ class Net:
         self.hosts = {}
         self.hubs = {}
         self.switchs={}
-        self.routers = {}
+        self.routers={}
+
         
     def create_host(self, name)->None:
         """Crea un host con nombre name"""
@@ -41,8 +46,7 @@ class Net:
         router = Router(name, n_ports)    # Creando la instancia de tipo Hub
         self.graph.add_vertex(router)  # Agregando el router a la lista que contiene a todos los dispositivos
         self.routers[router.name] = router   # Agregando el Router al dicionario que contiene a todos los routers
-    
-    # Mac Address
+
     def set_mac(self, host: str, mac_address: str, interface=0):
         if interface > 0:
             target_router:Router = self.my_device_str(host + "_"+interface) # Buscando Router al que le vamos a asignar la Mac
@@ -61,7 +65,39 @@ class Net:
         else:
             target_host:Host = self.my_device_str(host + "_1") # Buscando Host al que le vamos a asignar la Mac
             target_host.set_ip_mask(ip_address_tr, mask_tr) # Asignando mac
-    
+
+    def reset_route(self, router_name):
+        router:Router = self.routers[router_name]
+        if router == None:
+            return None
+        router.routes_table = {}
+        
+    def add_route(self, name, destination, mask, gateway, interface):
+        router:Router = self.routers[name]
+        if router == None:
+            return None
+        if router.routes_table.__contains__(mask):
+            router.routes_table[mask].append(Route(destination, mask, gateway, int(interface)))
+        else:
+            router.routes_table[mask] = [Route(destination, mask, gateway, int(interface))]
+
+    def delete_route(self, name, destination, mask, gateway, interface):
+        router:Router = self.routers[name]
+        if router == None:
+            return None
+        if router.routes_table.__contains__(mask):
+            to_search:list = router.routes_table[mask]
+            to_delete = []
+            for item in to_search:
+                if item.destination == destination and item.gateway == gateway and item.interface == int(interface):
+                    to_delete.append(item)
+            
+            for item in to_delete:
+                to_search.remove(item)
+    # Mac Address
+    # def set_mac(self, host: str, mac_address: str):
+    #     target_host:Host = self.my_device_str(host + "_1") # Buscando Host al que le vamos a asignar la Mac
+    #     target_host.mac_address = mac_address # Asignando mac
     
 #region Utiles
     
@@ -94,7 +130,12 @@ class Net:
         if(self.switchs.__contains__(name)):   # Verificando si el dispositivo esta contenido en el diccionario de switchs
             return self.switchs[name]
 
-   
+    def send_ping(self,host_str:str,ip_adress):
+        host:Host=self.my_device(host_str)
+        host.waiting=True
+        icmp=IP_Packet()
+        icmp.create_icmp_packet(8,host.ip_adress,ip_adress)
+        self.send_frame_bits(icmp)
 
 #endregion
 
@@ -177,13 +218,60 @@ class Net:
         BFS.bfs(self,BFS.modify_net,host.port,host.actual_bit,time,[],{})
 
 
-    def detect_collisions_on_hubs(host_sending:list):#si se estan enviando varias tramas en el mismo ms
-        
+    def detect_collisions_on_hubs(host_sending:list):#si se estan enviando varias tramas en el mismo ms        
         while len(host_sending) > 0:
             target = host_sending[0]
             host_sending.pop(0)
 
-        pass
+
+    #metodo encargado de enviar la peticion arpq
+    def send_arpq(self, tiempo:int,host:Host,ip_destino:str):
+        information= (Utils.dec_to_bin(ord(i))for i in 'ARPQ')#convierte cada letra en su valor de char y este valor lo lleva a binario
+        dest_direction=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]#direccion de broadcast
+        src_direction=Utils.hex_to_bin(host.mac_address)
+        ip_dest,l=Utils.ip_str_to_ip_bit(ip_destino)
+        host.waiting=True
+        self.send_frame_bits(src_direction+dest_direction+information+ip_dest)
+
+        
+    #metodo que envia la respuesta de la peticion arpq
+    def send_arpr(self, tiempo:int, host:Host,mac_destino:str):
+        information= (Utils.dec_to_bin(ord(i))for i in 'ARPR')#convierte cada letra en su valor de char y este valor lo lleva a binario
+        # dest_direction=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]#direccion de broadcast
+        src_direction=Utils.hex_to_bin(host.mac_address)
+        data=Utils.ip_str_to_ip_bit()
+        self.send_frame_bits(host,Utils.hex_to_bin(host.mac_address)+mac_destino+information+host.ip_adress)
+
+    def send_frame_bits(host:Host,frame_bits:list,host_sending:list):
+        host.bits_to_send = frame_bits
+        host_sending.append(host)
+
+    def send_frame(host:Host,instruction:list,host_sending:list):
+        host.writing = True # Este Host esta escribiendo
+        dst_mac = instruction[3]    # Mac de destino
+        data, data_size= Frame.parse_frame_data(instruction[4],method=1)
+        host.add_frame(Frame(state="inactive", src_mac=host.mac_address, dst_mac=dst_mac, data_size=data_size,
+                                data=data))    # Annadiendo Frame a lista de frames del host
+        host.bits_to_send += host.frames_list[-1].bits
+        host_sending.append(host)
+
+    def send_packet(self,host:Host,instruction:list,host_sending:list):
+        ip_packet=IP_Packet()
+        data=instruction[4]
+        size_str=Utils.dec_to_bin(len(data))
+        size=(int(i) for i in size_str)#convertir el tamanno de la data en un array de enteros
+        data_str=Utils.hex_to_bin(data)
+        data=(int(i) for i in data_str)#convertir la data en un array de enteros
+        host_ip_dest,l=Utils.ip_str_to_ip_bit(instruction[3])
+        ip_packet.create_packet(source_ip_adress=host.ip_adress,dest_ip_adress=host_ip_dest, ttl=[0,0,0,0,0,0,0,0],protocol=[0,0,0,0,0,0,0,0],payload_size=size,packet_data=data)
+        host.ip_packets_list.append(ip_packet)
+        instruction[4]=str(ip_packet.bits)#cambio la data de la instruccion por toda la data que seria todo el ip packet para poder hacer el sendframe
+        #si el host conoce la mac asociada a la direccion ip, el envia la informacion a esa mac
+        if host.ip_macs.__contains__(host_ip_dest):
+            mac=host.ip_macs[host_ip_dest]
+            self.send_frame(host,instruction,host_sending)
+        else: self.send_arpq(host)
+
 
     def send_many(self, send_list: list, time:int):
         """Procesa todas las instrucciones de send y de send_frame. Si el host comienza a enviar en este ms se verifica si ocurre colision, si ocurre se pone en pendiente, sino, envia.
@@ -191,7 +279,7 @@ class Net:
         host_sending = []
         # Hosts que comenzaran a estar en writing
         for instruction in send_list: # Iterando por las instrucciones de enviar en la lista que contiene al inicio las instrucciones de send y luego las de send_frame
-            if instruction[1] == "send":
+            if instruction[1] == "send":#se hace el send bit a bit
                 host = self.my_device(self.graph.search_port(instruction[2]))
                 host.writing = True
                 bits = [int(bit) for bit in instruction[3]]
@@ -199,18 +287,11 @@ class Net:
                 host_sending.append(host)
             elif instruction[1] == "send_frame": # Creamos el Frame en el host a enviar, annadimos cada bit de la trama a enviar a los bits que tiene q enviar el host, annadimos este host a la lista de host que se encuentran enviando
                 host:Host = self.my_device(self.graph.search_port(instruction[2])) # Busco el host que commenzara a enviar
-                host.writing = True # Este Host esta escribiendo
-                # Added Lines
-                dst_mac = instruction[3]    # Mac de destino
-                # temp_data = "" + instruction[4]
-                # data, data_size = Frame.parse_frame_data(instruction[4],method=1)
-                data, data_size= Frame.parse_frame_data(instruction[4],method=1)
-                host.add_frame(Frame(state="inactive", src_mac=host.mac_address, dst_mac=dst_mac, data_size=data_size,
-                                     data=data))    # Annadiendo Frame a lista de frames del host
-                #End Added Lines
-                # bits = [int(bit) for bit in instruction[3]] # 
-                host.bits_to_send += host.frames_list[-1].bits
-                host_sending.append(host)
+                self.send_frame(host,instruction,host_sending)
+
+            elif instruction[1] == "send_packet":
+                host:Host = self.my_device(self.graph.search_port(instruction[2])) # Busco el host que commenzara a enviar
+                self.send_packet(host,instruction,host_sending)
 
         # Hosts que estaban en pending
         for host in self.hosts.values(): # los hosts que estaban esperando para comenzar a enviar
@@ -219,13 +300,20 @@ class Net:
                 if host.time_to_retry == 0:
                     host.pending = False
                     host.writing = True
-                    host_sending.append(host)   # Los sumamos a la lista de hosts que estan enviando en este ms
+                    if host.send_arpr:
+                        self.send_arpr(time,host,host.mac_dest)                        
+                    else:
+                        host_sending.append(host)   # Los sumamos a la lista de hosts que estan enviando en este ms
+  # Los sumamos a la lista de hosts que estan enviando en este ms
           
         # Colisiones...Primero hacemos bfs buscando todos aquellos que colisionan con cierto host que se encuentra enviando, de ser asi
         # eliminamos de la lista de los que estan enviando a todos aquellos con los que colisiono este host, si el host se encuentra transmitiendo,
         # le dejamos via libre     
          
-          
+        for router in self.routers.values():
+            for port in router.ports_data.values():
+                if port.pending and port.time == 0:
+                    self.send_frame_bits(port.self.out_frames[0].bits,[])
         #diccionario que va a tener por cada arista que pertenezca a un puerto de un hub, va a devolver el host desde el que se envia
         edges_per_send={}
         collisions=[]
@@ -253,32 +341,7 @@ class Net:
             else:
                 self.send(target,time)
             host_sending.pop(0)
-            #aqui se va a comprobar que las colisiones no ocurran en los hubs
-
-
-
-            #collisions,port_tree = self.BFS(self,BFS.comprobate_net,target.port, target.bits_to_send[0],time,[],{})
-            #cuando este vacia la lista de colisiones hacer send con target 
-            # en caso de no estar vacia poner a todos en pendiente(target+pendientes)
-            # if len(collisions) > 0:
-            #     self.set_state(target, time, pending=True, collision=True)
-            #     for host in collisions:  
-            #         if not host_sending.__contains__(host): # Si el host no esta contenido en la lista de los host que estan enviando, continua a verificar al siguiente
-            #             continue                  
-            #         index=host_sending.index(host)  # Indice del host que se envuentra enviando y colisionó.
-            #         if host.transmitting:   # Si este ya estaba transmitiendo continuara con su transmision porque tiene prioridad
-            #             continue
-            #         if index!=-1:  #ver caso de los que estan transmitiendo, en este caso no hacerles nada poner un if para ellos
-            #             host_sending.pop(index)
-            #             self.set_state(host, time, pending=True, collision=True)
-            # else: 
-            #     self.send(target,time) # Si no ocurrio colision, entonces mandamos a 
-
-
-            # host_sending.pop(0)
-
-
-
+           
 
 class BFS:
 
@@ -336,9 +399,14 @@ class BFS:
                 return
             actual_device_v.read_bit(time,bit)
             send_text="receive"            
-            actual_device_v.write_msg_in_file(f"{time} {v[0].name} {send_text} {str(bit)}")# se manda a escribir al hub que le llega o recibe el bit correspondiente
+            actual_device_v.write_msg_in_file(f"{time} {v[0].name} {send_text} {str(bit)}")# se manda a escribir al host que le llega o recibe el bit correspondiente
 
-        
+        if isinstance(actual_device_v,Router):
+            #Port(v[0]).bits_received_in_ms=bit
+            if(bit==-1):
+                return
+            actual_device_v.read_bit(time,bit)
+            send_text="receive"            
         
         
     @staticmethod

@@ -78,6 +78,10 @@ def get_inst(lists: list, time: int)->list:
             result.append(item)
             
     for item in lists:
+        if int(item[0]) == time and item[1] == "ping" :
+            result.append(item)
+            
+    for item in lists:
         if int(item[0]) == time and item[1] == "send":
             send_list.append(item)
             
@@ -155,6 +159,8 @@ def start(signal_time):
                     network.add_route(actual_inst[3], actual_inst[4], actual_inst[5], actual_inst[6], actual_inst[7])
                 elif actual_inst[2] == "delete":
                     network.delete_route(actual_inst[3], actual_inst[4], actual_inst[5], actual_inst[6], actual_inst[7])
+            elif actual_inst[1] == "ping":
+                network.send_ping(actual_inst[2], actual_inst[3])
             instruction.pop(0)
             
             
@@ -168,40 +174,8 @@ def start(signal_time):
 
     items.close()
 
-    def reset_route(self, router_name):
-        router:Router = self.routers[router_name]
-        if router == None:
-            return None
-        router.routes_table = {}
-        
-    def add_route(self, name, destination, mask, gateway, interface):
-        router:Router = self.routers[name]
-        if router == None:
-            return None
-            # host:Host = self.hosts[name]
-            # if host == None:
-            #     return None
-            # if host.routes_table.__contains__(mask):
-            #     host.routes_table[mask].append(Route(destination, mask, gateway, int(interface)))
-        # else: 
-        if router.routes_table.__contains__(mask):
-            router.routes_table[mask].append(Route(destination, mask, gateway, int(interface)))
-
-    def delete_route(self, name, destination, mask, gateway, interface):
-        router:Router = self.routers[name]
-        if router == None:
-            return None
-        if router.routes_table.__contains__(mask):
-            to_search:list = router.routes_table[mask]
-            to_delete = []
-            for item in to_search:
-                if item.destination == destination and item.gateway == gateway and item.interface == int(interface):
-                    to_delete.append(item)
+    
             
-            for item in to_delete:
-                to_search.remove(item)
-            
-            # router.routes_table[mask].append(Route(destination, mask, gateway, int(interface)))
 
 if __name__== '__main__':
     signal_time = 10

@@ -17,13 +17,7 @@ class Router(Device):
         
         # Routes
         self.routes_table = {}
-        # self.routes_table["255.255.255.255"] = []
-        # self.routes_table["255.255.255.0"] = []
-        # self.routes_table["255.255.0.0"] = []
-        # self.routes_table["255.0.0.0"] = []
-        # self.routes_table["0.0.0.0"] = []
-        
-        
+            
         self.ports_data = {}
         
         for i in range(1, int(n_ports)+1):
@@ -40,6 +34,13 @@ class Router(Device):
       
     def add_route(self, route: Route):
         self.routes_table[route.mask] = route # Las mascaras tienen prioridad, asi que indexamos por las mascaras
+    
+    def modify_and_send_frame(self, frame:Frame, ip_packet: IP_Packet, new_dst_ip):
+        new_dst_ip_tr, _ = ip_str_to_ip_bit(new_dst_ip)
+        
+        ip_packet.edit_dst_ip(new_dst_ip)
+        frame.edit_data_bits(ip_packet.bits)
+        return frame    
      
     def ip_and_mask(self, ip, mask, destination):
         _, mask_tr = ip_str_to_ip_bit(mask)
@@ -67,11 +68,23 @@ class Router(Device):
         # Aplico AND entre ip del destino en ip_packet y cada mascara ordenadamente
             for temp_route in item:
                 if self.ip_and_mask(dst_ip, temp_route.mask, temp_route.destination):
+                    port_name = f"{self.name}_{str(temp_route.interface)}"
                     if temp_route.gateway == "0.0.0.0":
-                        return self.ports[f"{self.name}_{str(temp_route.interface)}"]
+                        self.ports_data[port_name].add_frame_out(frame_to_send)
+                        self.ports_data[port_name].pending= True
+                        return self.ports[port_name]
                     else:
-                        self.
+                        frame_to_send = self.modify_and_send_frame(frame, ip_packet, temp_route.gateway)
+                        self.ports_data[port_name].add_frame_out(frame_to_send)
+                        self.ports_data[port_name].pending= True
+                        return self.ports[port_name]
+                        
+        ip_packet = IP_Packet().create_icmp_packet(3, self.ports_data[self.ports[in_port].name].ip, ip_packet.get_src_ip())
+        src_mac = self.ports_data[self.ports[in_port].name].mac
+        frame_to_send:Frame = Frame(src_mac=src_mac, dst_mac=frame.get_src_mac(), data=ip_packet.bits, data_size=len(ip_packet.bits))
         
+        self.ports_data[self.ports[in_port].name].add_frame_out(frame_to_send)
+        self.ports_data[self.ports[in_port].name].pending = True
             
     def read_bit(self, bit, port):
         self.ports[port].read_bit(bit)
