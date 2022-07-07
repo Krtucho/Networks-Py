@@ -18,40 +18,7 @@ def create_device(type="host", name="", n_ports=1):
     #     return Rou
     return None
 
-# def get_inst(lists: list, time: int)->list:
-#     result = []
-#     send_list = []
-     
-#     for item in lists:
-#         if int(item[0]) == time and item[1] == "create" :
-#             result.append(item)
 
-#     for item in lists:
-#         if int(item[0]) == time and item[1] == "mac" :
-#             result.append(item)    
-
-#     for item in lists:
-#         if (int(item[0]) == time) and (item[1] == "connect" or item[1] == "disconnect"):
-#             result.append(item)
-            
-#     for item in lists:
-#         if int(item[0]) == time and item[1] == "send":
-#             send_list.append(item)
-            
-#     for item in lists:
-#         if int(item[0]) == time and item[1] == "send_frame":
-#             send_list.append(item)
-    
-#     for item in result:
-#         if lists.__contains__(item):
-#             lists.remove(item)
-            
-#     for item in send_list:
-#         if lists.__contains__(item):
-#             lists.remove(item)
-            
-#     return result, send_list
-    
 def get_inst(lists: list, time: int)->list:
     result = []
     send_list = []

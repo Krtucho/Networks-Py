@@ -1,6 +1,8 @@
+# from numpy import true_divide
 from port import Port
 from device import Device
 from frame import *
+from ip_packet import IP_Packet
 # from check import Check
 # from frame import Frame
 
@@ -38,9 +40,9 @@ class Host(Device):
         self.ip_packets_receive_list:list = [] # Lista con los ip_packets que se reciben
         self.host_routes={}#tabla de rutas donde por casa m'ascara tengo una lista de rutas
         self.ip_macs={}#diccionario al que le pasas una direccion ipp y devuelve la mac asociada si la tiene
+        self.send_arpr=False #se utiliza para saber en el net si este host va a mandar un paquete arpr
+        self.mac_dest=[]#para saber la mac a la que se debe enviar el send_arp actual
 
-
-        
 
 
     def add_frame(self, frame:Frame):
@@ -158,6 +160,7 @@ class Host(Device):
         """ """
         if self.receiving_frame == None:
             return False
+        
         # if not self.can_remove_frame():
         #     return False
         #aqui lo hace con la lista de los frames que yo entiendo que son para enviar
@@ -183,6 +186,8 @@ class Host(Device):
         part_of_frame_completed_name,part_of_frame_completed_bits=self.receiving_frame.add_bit(bit)
         if self.receiving_frame.actual_part  == 'end':
             if self.check_frame():
+                self.check_arp_protocol()
+                self.check_icmp_protocol()
                 self.remove_last_receiving_frame()
                 # self.write_data_in_file(self.receiving_frame)
 
@@ -209,15 +214,59 @@ class Host(Device):
     # def send_ip_packet(self,ip_destino:str):
     #     pass
 
-    
+    def check_arp_protocol(self):        
+        ip_packet=IP_Packet(self.receiving_frame.get_data_bits())
+        data_size=ip_packet.get_payload_size()
+        if data_size==32:
+            data=ip_packet.get_packet_data()
+            information_q= (Utils.dec_to_bin(ord(i))for i in 'ARPQ')#convierte cada letra en su valor de char y este valor lo lleva a binario
+            information_r= (Utils.dec_to_bin(ord(i))for i in 'ARPR')#convierte cada letra en su valor de char y este valor lo lleva a binario
+            if information_q==data[0-15]:#caso en que se esta recibiendo un ARPQ
+                self.pending=True
+                self.time_to_send_next_bit=1
+                self.send_arpr=True
+                self.mac_dest=self.receiving_frame.get_src_mac()
+                return True
+            elif data[0-15]==information_r:
+                self.waiting=False
+                self.pending=True
+                self.time_to_send_next_bit=1
+                return True
+        return False
 
 
-    #metodo encargado de recibir la respuesta arpr
-    def receive_arpr(self,frame:Frame):
-        pass
+        
+        
 
-    #metodo que recibe la peticion arpq y verifica si hay que dar la respuesta
-    def receive_arpq_petition(self,frame:Frame):
-       pass
+    def check_icmp_protocol(self):
+        ip_packet=IP_Packet(self.receiving_frame.get_data_bits())
+        data=ip_packet.get_packet_data()
+        if ip_packet.get_payload_size()!= 1:
+            return False
+        payload=Utils.bin_to_dec(data[47-55])#tengo e payload en decimal
+        if payload==0:
+            self.waiting=False
+        elif payload==3:
+            self.actual_frame=[]
+            self.waiting=False
+        elif payload==8:
+            self.pending=True
+            self.time_to_send_next_bit=1
+            self.send_arpr=True
+            self.mac_dest=self.receiving_frame.get_src_mac()
+        elif payload==11:
+            pass
+
+        return True
+
+
+
+    # #metodo encargado de recibir la respuesta arpr
+    # def receive_arpr(self,frame:Frame):
+    #     pass
+
+    # #metodo que recibe la peticion arpq y verifica si hay que dar la respuesta
+    # def receive_arpq_petition(self,frame:Frame):
+    #    pass
 
     

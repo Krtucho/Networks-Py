@@ -75,3 +75,12 @@ class IP_Packet:
          Utils.bin_to_dec("".join([str(v) for v in bits[16:24]])),
          Utils.bin_to_dec("".join([str(v) for v in bits[24:32]]))
          ]
+
+ 
+    def create_icmp_packet(self,payload:int,src_ip:str,dest_ip:str):
+        _, dest_ip_tr = Utils.ip_str_to_ip_bit(dest_ip)
+        _, src_ip_tr =  Utils.ip_str_to_ip_bit(src_ip)
+        last = [int(v) for v in Utils.dec_to_bin(payload)]
+        bits = dest_ip_tr + src_ip_tr + [0,0,0,0,0,0,0,0] + [0,0,0,0,0,0,0,1] + [0,0,0,0,0,0,0,1] + last
+        self.bits=bits
+

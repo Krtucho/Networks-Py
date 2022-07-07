@@ -4,5 +4,3 @@ class Route:
         self.mask = mask
         self.gateway = gateway
         self.interface = interface
-
-        

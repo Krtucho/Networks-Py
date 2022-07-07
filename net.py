@@ -1,4 +1,5 @@
 # from tkinter import N
+from fileinput import _HasReadlineAndFileno
 from graph import Graph
 from host import Host
 from hub import Hub
@@ -98,7 +99,12 @@ class Net:
         if(self.switchs.__contains__(name)):   # Verificando si el dispositivo esta contenido en el diccionario de switchs
             return self.switchs[name]
 
-   
+    def send_ping(self,host_str:str,ip_adress):
+        host:Host=self.my_device(host_str)
+        host.waiting=True
+        icmp=IP_Packet()
+        icmp.create_icmp_packet(8,host.ip_adress,ip_adress)
+        self.send_frame_bits(icmp)
 
 #endregion
 
@@ -188,11 +194,12 @@ class Net:
 
 
     #metodo encargado de enviar la peticion arpq
-    def send_arpq(self, tiempo:int,host,ip_destino:str):
+    def send_arpq(self, tiempo:int,host:Host,ip_destino:str):
         information= (Utils.dec_to_bin(ord(i))for i in 'ARPQ')#convierte cada letra en su valor de char y este valor lo lleva a binario
         dest_direction=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]#direccion de broadcast
         src_direction=Utils.hex_to_bin(host.mac_address)
         ip_dest,l=Utils.ip_str_to_ip_bit(ip_destino)
+        host.waiting=True
         self.send_frame_bits(src_direction+dest_direction+information+ip_dest)
 
         
@@ -202,7 +209,7 @@ class Net:
         # dest_direction=[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]#direccion de broadcast
         src_direction=Utils.hex_to_bin(host.mac_address)
         data=Utils.ip_str_to_ip_bit()
-        self.send_frame_bits(Utils.hex_to_bin(host.mac_address)+mac_destino+information+host.ip_adress)
+        self.send_frame_bits(host,Utils.hex_to_bin(host.mac_address)+mac_destino+information+host.ip_adress)
 
     def send_frame_bits(host:Host,frame_bits:list,host_sending:list):
         host.bits_to_send = frame_bits
@@ -231,8 +238,6 @@ class Net:
         #si el host conoce la mac asociada a la direccion ip, el envia la informacion a esa mac
         if host.ip_macs.__contains__(host_ip_dest):
             mac=host.ip_macs[host_ip_dest]
-
-
             self.send_frame(host,instruction,host_sending)
         else: self.send_arpq(host)
 
@@ -264,13 +269,20 @@ class Net:
                 if host.time_to_retry == 0:
                     host.pending = False
                     host.writing = True
-                    host_sending.append(host)   # Los sumamos a la lista de hosts que estan enviando en este ms
+                    if host.send_arpr:
+                        self.send_arpr(time,host,host.mac_dest)                        
+                    else:
+                        host_sending.append(host)   # Los sumamos a la lista de hosts que estan enviando en este ms
+  # Los sumamos a la lista de hosts que estan enviando en este ms
           
         # Colisiones...Primero hacemos bfs buscando todos aquellos que colisionan con cierto host que se encuentra enviando, de ser asi
         # eliminamos de la lista de los que estan enviando a todos aquellos con los que colisiono este host, si el host se encuentra transmitiendo,
         # le dejamos via libre     
          
-          
+        for router in self.routers.values():
+            for port in router.ports_data.values():
+                if port.pending and port.time == 0:
+                    self.send_frame_bits(port.self.out_frames[0].bits,[])
         #diccionario que va a tener por cada arista que pertenezca a un puerto de un hub, va a devolver el host desde el que se envia
         edges_per_send={}
         collisions=[]
@@ -347,7 +359,6 @@ class BFS:
                 ports_to_send = actual_device_v.send_bit(v[0],bit)#pide al switch por los puertos que va a enviar
                 [queue.append(p) for p in ports_to_send]#agrega a la cola todos los puertos por los que va a enviar el switch
 
-            
             else:#si ya se habia llegado a este switch, no se necesita que se vuelva a llegar
                 return
 
@@ -357,9 +368,14 @@ class BFS:
                 return
             actual_device_v.read_bit(time,bit)
             send_text="receive"            
-            actual_device_v.write_msg_in_file(f"{time} {v[0].name} {send_text} {str(bit)}")# se manda a escribir al hub que le llega o recibe el bit correspondiente
+            actual_device_v.write_msg_in_file(f"{time} {v[0].name} {send_text} {str(bit)}")# se manda a escribir al host que le llega o recibe el bit correspondiente
 
-        
+        if isinstance(actual_device_v,Router):
+            #Port(v[0]).bits_received_in_ms=bit
+            if(bit==-1):
+                return
+            actual_device_v.read_bit(time,bit)
+            send_text="receive"            
         
         
     @staticmethod

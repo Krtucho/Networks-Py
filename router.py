@@ -1,9 +1,11 @@
+from ip_packet import IP_Packet
 from port import Port
 from device import Device
 # from net import Net
 from port_data import PortData
 from route import Route
 from frame import Frame
+from utils import ip_str_to_ip_bit
 
 class Router(Device):
     def __init__(self, name, n_ports) -> None:
@@ -15,7 +17,7 @@ class Router(Device):
         
         # Routes
         self.routes_table = {}
-        
+            
         self.ports_data = {}
         
         for i in range(1, int(n_ports)+1):
@@ -24,18 +26,59 @@ class Router(Device):
             
             self.ports_data[temp_name] = PortData()
        
-    def set_ip(self, interface, ip):
-        self.ports_data[interface].set_ip(ip)
+    def set_ip(self, interface, ip, mask):
+        self.ports_data[interface].set_ip(ip, mask)
     
     def set_mac(self, interface, mac):
         self.ports_data[interface].set_mac(mac)
       
     def add_route(self, route: Route):
         self.routes_table[route.mask] = route # Las mascaras tienen prioridad, asi que indexamos por las mascaras
-      
+    
+    def modify_and_send_frame(self, frame:Frame, ip_packet: IP_Packet, new_dst_ip):
+        new_dst_ip_tr, _ = ip_str_to_ip_bit(new_dst_ip)
+        
+        ip_packet.edit_dst_ip(new_dst_ip)
+        frame.edit_data_bits(ip_packet.bits)
+        return frame    
+     
+    def ip_and_mask(self, ip, mask, destination):
+        _, mask_tr = ip_str_to_ip_bit(mask)
+        _, dest_tr = ip_str_to_ip_bit(destination)
+        
+        and_lst = [0,0,0,0]
+        
+        for i in range(0, 4):
+            and_lst[i] = ip[i] & mask_tr[i]
+        
+        return mask_tr[0] == dest_tr
+     
     # Busca dado un puerto de entrada y un paquete ip retorna el puerto del router por donde debe de seguir
-    def forward_packet(self, in_port, ip_packet):
-        pass
+    def forward_packet(self, in_port, ip_packet: IP_Packet, frame:Frame):
+        dst_ip = ip_packet.get_dst_ip()
+        if dst_ip == None:
+            return None
+        dst_ip = ip_packet.convert_from_bits_to_ip(dst_ip)
+        
+        # Ordeno mi tabla de rutas y me quedo con la lista resultante
+        items = list(self.routes_table.keys)
+        items.sort()
+        items.reverse()
+        for item in items:
+        # Aplico AND entre ip del destino en ip_packet y cada mascara ordenadamente
+            for temp_route in item:
+                if self.ip_and_mask(dst_ip, temp_route.mask, temp_route.destination):
+                    port_name = f"{self.name}_{str(temp_route.interface)}"
+                    if temp_route.gateway == "0.0.0.0":
+                        self.ports_data[port_name].add_frame_out(frame_to_send)
+                        return self.ports[port_name]
+                    else:
+                        frame_to_send = self.modify_and_send_frame(frame, ip_packet, temp_route.gateway)
+                        self.ports_data[port_name].add_frame_out(frame_to_send)
+                        return self.ports[port_name]
+                        
+        
+        
             
     def read_bit(self, bit, port):
         self.ports[port].read_bit(bit)
