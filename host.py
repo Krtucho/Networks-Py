@@ -22,7 +22,7 @@ class Host(Device):
         self.time_to_send_next_bit = signal_time # Tiempo restante para enviar el siguiente bit de la lista bits_to_send
         
         self.mac_address = "" # Direccion mac de esta pc, por el momento se tendra que asignar manualmente
-        
+        self.ip_adress=[]
         # Frames
         self.frames_list:list = [] # Lista con los frames a enviar
         self.actual_frame = -1 # Indice del frame actual de la lista de frames_list

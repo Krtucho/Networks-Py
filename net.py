@@ -2,12 +2,13 @@ from tkinter import N
 from graph import Graph
 from host import Host
 from hub import Hub
+from ip_packet import IP_Packet
 from port import Port
 from switch import Switch
 from frame import Frame
 # from bfs import BFS 
 import random
-
+from utils import Utils
 class Net:
     def __init__(self, signal_time:int)->None:
         self.signal_time = signal_time
@@ -152,33 +153,29 @@ class Net:
         BFS.bfs(self,BFS.modify_net,host.port,host.actual_bit,time,[],{})
 
 
-    def detect_collisions_on_hubs(host_sending:list):#si se estan enviando varias tramas en el mismo ms
-        
+    def detect_collisions_on_hubs(host_sending:list):#si se estan enviando varias tramas en el mismo ms        
         while len(host_sending) > 0:
             target = host_sending[0]
             host_sending.pop(0)
 
-        pass
 
-
-
-
-    def send_frame(host:Host,instruction:list,host_sending):
+    def send_frame(host:Host,instruction:list,host_sending:list):
         host.writing = True # Este Host esta escribiendo
-                # Added Lines
         dst_mac = instruction[3]    # Mac de destino
-        # temp_data = "" + instruction[4]
-        # data, data_size = Frame.parse_frame_data(instruction[4],method=1)
         data, data_size= Frame.parse_frame_data(instruction[4],method=1)
         host.add_frame(Frame(state="inactive", src_mac=host.mac_address, dst_mac=dst_mac, data_size=data_size,
                                 data=data))    # Annadiendo Frame a lista de frames del host
-        #End Added Lines
-        # bits = [int(bit) for bit in instruction[3]] # 
         host.bits_to_send += host.frames_list[-1].bits
         host_sending.append(host)
 
-    def send_packet():
-        pass
+    def send_packet(host:Host,instruction:list,host_sending:list):
+        ip_packet=IP_Packet()
+        data=instruction[4]
+        size=Utils.dec_to_bin(len(data))
+        data=Utils.hex_to_bin(data)
+        ip_packet.create_packet(host_ip_adress=host.ip_adress, ttl=[0,0,0,0,0,0,0,0],protocol=[0,0,0,0,0,0,0,0],payload_size=size,packet_data=data)
+        host.ip_packets_list.append(ip_packet)
+        self.send_frame()
 
 
     def send_many(self, send_list: list, time:int):
@@ -195,6 +192,8 @@ class Net:
                 host_sending.append(host)
             elif instruction[1] == "send_frame": # Creamos el Frame en el host a enviar, annadimos cada bit de la trama a enviar a los bits que tiene q enviar el host, annadimos este host a la lista de host que se encuentran enviando
                 host:Host = self.my_device(self.graph.search_port(instruction[2])) # Busco el host que commenzara a enviar
+                self.send_frame(host,instruction,host_sending)
+
                 ###############################################################
                 # # host.writing = True # Este Host esta escribiendo
                 # # # Added Lines
@@ -210,11 +209,11 @@ class Net:
 
                 # # host_sending.append(host)
                 ##############################################################
-                self.send_frame(host,instruction,host_sending)
+
+
             elif instruction[1] == "send_packet":
                 host:Host = self.my_device(self.graph.search_port(instruction[2])) # Busco el host que commenzara a enviar
-
-                pass
+                self.send_packet(host,instruction,host_sending)
 
         # Hosts que estaban en pending
         for host in self.hosts.values(): # los hosts que estaban esperando para comenzar a enviar

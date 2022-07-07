@@ -74,6 +74,10 @@ def get_inst(lists: list, time: int)->list:
     for item in lists:
         if int(item[0]) == time and item[1] == "send_frame":
             send_list.append(item)
+            
+    for item in lists:
+        if int(item[0]) == time and item[1] == "send_packet":
+            send_list.append(item)
     
     for item in result:
         if lists.__contains__(item):
