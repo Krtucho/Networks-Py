@@ -1,6 +1,7 @@
 from host import Host
 from hub import Hub
 from switch import Switch
+from router import Router
 from net import *
 import sys
 
@@ -14,8 +15,8 @@ def create_device(type="host", name="", n_ports=1):
         return Hub(name)
     if type == "switch":
         return Switch(name)
-    # if type == "router":
-    #     return Rou
+    if type == "router":
+        return Router(name)
     return None
 
 # def get_inst(lists: list, time: int)->list:
@@ -68,11 +69,19 @@ def get_inst(lists: list, time: int)->list:
             result.append(item)
             
     for item in lists:
+        if int(item[0]) == time and item[1] == "route" :
+            result.append(item)
+            
+    for item in lists:
         if int(item[0]) == time and item[1] == "send":
             send_list.append(item)
             
     for item in lists:
         if int(item[0]) == time and item[1] == "send_frame":
+            send_list.append(item)
+    
+    for item in lists:
+        if int(item[0]) == time and item[1] == "send_packet":
             send_list.append(item)
     
     for item in result:
@@ -116,12 +125,21 @@ def start(signal_time):
                     network.create_hub(actual_inst[3],actual_inst[4])
                 elif  actual_inst[2] == "switch":
                     network.create_switch(actual_inst[3],actual_inst[4])
+                elif actual_inst[2] == "router":
+                    network.create_router(actual_inst[3], actual_inst[4])
             elif actual_inst[1] == "mac":
                 network.set_mac(actual_inst[2], actual_inst[3])
             elif actual_inst[1] == "connect":
                 network.connect(actual_inst[2], actual_inst[3], time)
             elif actual_inst[1] == "disconnect":
                 network.disconnect(actual_inst[2])
+            elif actual_inst[1] == "route":
+                if actual_inst[2] == "reset":
+                    network.reset_route(actual_inst[3])
+                elif actual_inst[2] == "add":
+                    network.add_route()
+                elif actual_inst[2] == "delete":
+                    
             instruction.pop(0)
             
             
@@ -134,6 +152,20 @@ def start(signal_time):
         finished = not len(lists) and is_finished(network)
 
     items.close()
+
+    def reset_route(self, router_name):
+        router:Router = self.routers[router_name]
+        if router == None:
+            return None
+        router.routes_table = {}
+        
+    def add_route(self, name, destination, mask, getaway, interface)
+        router:Router = self.routers[name]
+        if router == None:
+            return None
+        if router.routes_table.__contains__(mask):
+            
+        router.routes_table = {}
 
 if __name__== '__main__':
     signal_time = 10

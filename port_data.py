@@ -13,6 +13,11 @@ class PortData:
         self.out_frames = []
         self.out_frame_index = -1
         
+        self.pending = False
+        self.sending = False
+        self.transmitting = False
+        self.waiting = False
+        
     def add_frame_in(self, frame):
         if len(self.in_frames) == 0:
             self.in_frame_index = 0

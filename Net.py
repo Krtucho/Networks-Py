@@ -4,6 +4,7 @@ from host import Host
 from hub import Hub
 from port import Port
 from switch import Switch
+from router import Router
 from frame import Frame
 # from bfs import BFS 
 import random
@@ -15,6 +16,7 @@ class Net:
         self.hosts = {}
         self.hubs = {}
         self.switchs={}
+        self.routers = {}
         
     def create_host(self, name)->None:
         """Crea un host con nombre name"""
@@ -32,6 +34,12 @@ class Net:
         hub = Hub(name, n_ports)    # Creando la instancia de tipo Hub
         self.graph.add_vertex(hub)  # Agregando el hub a la lista que contiene a todos los dispositivos
         self.hubs[hub.name] = hub   # Agregando el Hub al dicionario que contiene a todos los hubs
+    
+    def create_router(self, name, n_ports):
+        """Creando un hub con nombre name y una cantidad n_ports de puertos"""
+        router = Router(name, n_ports)    # Creando la instancia de tipo Hub
+        self.graph.add_vertex(router)  # Agregando el router a la lista que contiene a todos los dispositivos
+        self.routers[router.name] = router   # Agregando el Router al dicionario que contiene a todos los routers
     
     # Mac Address
     def set_mac(self, host: str, mac_address: str):
