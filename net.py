@@ -168,14 +168,14 @@ class Net:
         host.bits_to_send += host.frames_list[-1].bits
         host_sending.append(host)
 
-    def send_packet(host:Host,instruction:list,host_sending:list):
+    def send_packet(self,host:Host,instruction:list,host_sending:list):
         ip_packet=IP_Packet()
         data=instruction[4]
         size=Utils.dec_to_bin(len(data))
         data=Utils.hex_to_bin(data)
         ip_packet.create_packet(host_ip_adress=host.ip_adress, ttl=[0,0,0,0,0,0,0,0],protocol=[0,0,0,0,0,0,0,0],payload_size=size,packet_data=data)
         host.ip_packets_list.append(ip_packet)
-        self.send_frame()
+        self.send_frame(host,instruction,host_sending)
 
 
     def send_many(self, send_list: list, time:int):
