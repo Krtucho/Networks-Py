@@ -10,7 +10,10 @@ class IP_Packet:
         if not(bit == -1):
             self.bits.append(bit)
             self.index += 1
-            
+        
+    def create_packet(self,source_ip_adress,dest_ip_adress, ttl,protocol,payload_size,packet_data):#crea un paquete ip con los datos en una instruccion
+        #agregar todos los bits de las cosas a los bits del ip_packet
+        self.bits=source_ip_adress + dest_ip_adress+ ttl + protocol + payload_size + packet_data    
      
     def get_dst_ip(self):
         DST_IP_END_INDEX = 31
