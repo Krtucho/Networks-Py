@@ -61,3 +61,14 @@ class Utils:
         if len(output) % 8 != 0:
             return "0000"+output
         return output
+
+    @staticmethod
+    def ip_str_to_ip_bit(ip_str:str):
+        #convertir una direccion ip en un array de enteros
+        ip_dest = [int(item) for item in ip_str.split('.')]#tomando el ip de destino
+        host_ip_dest_temp=(Utils.dec_to_bin(i) for i in ip_dest)
+        host_ip_dest=[]
+        for i in host_ip_dest_temp:
+            for j in i:
+                host_ip_dest.append(int(j))
+        return host_ip_dest, ip_dest #convierte la ip de string a: primero a lista de bits, lista de decimales

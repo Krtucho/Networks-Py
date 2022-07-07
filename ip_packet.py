@@ -12,10 +12,9 @@ class IP_Packet:
             self.index += 1
             
     # def create_packet(dst_ip,src_ip,ttl,protocol,payload_size,packet_data):
-    def create_packet(self,host_ip_adress, ttl,protocol,payload_size,packet_data):#crea un paquete ip con los datos en una instruccion
-        
+    def create_packet(self,source_ip_adress,dest_ip_adress, ttl,protocol,payload_size,packet_data):#crea un paquete ip con los datos en una instruccion
         #agregar todos los bits de las cosas a los bits del ip_packet
-        self.bits
+        self.bits=source_ip_adress + dest_ip_adress+ ttl + protocol + payload_size + packet_data
 
 
 

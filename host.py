@@ -11,18 +11,18 @@ class Host(Device):
         self.ports[0] = self.port
         self.transmitting = False # Si se encuentra transmitiendo en este instante
         self.writing = False    # Esta escribiendo en este instante
-        
+        self.waiting=False
         self.time_to_retry = 0  # Tiempo necesario para reintentar enviar
         self.pending = False    # Si el host esta intentando reenviar alguna informacion que no puedo enviarla debido a una colision o un a desconexion
         self.bits_to_send = []  # Bits a enviar
         self.actual_bit = -1     # Bit que se esta enviando actualmente
 
-        self.signal_time = signal_time
-        
+        self.signal_time = signal_time        
         self.time_to_send_next_bit = signal_time # Tiempo restante para enviar el siguiente bit de la lista bits_to_send
         
         self.mac_address = "" # Direccion mac de esta pc, por el momento se tendra que asignar manualmente
-        self.ip_adress=[]
+        self.ip_adress=[]#direccion op del host
+        self.mask=[]
         # Frames
         self.frames_list:list = [] # Lista con los frames a enviar
         self.actual_frame = -1 # Indice del frame actual de la lista de frames_list
@@ -34,7 +34,12 @@ class Host(Device):
         self._data = open(self.data_name, 'w') # Archivo de salida en la que se guardaran los logs
 
         #IP Packets
-        self.ip_packets_list:list = [] # Lista con los ip_packets a enviar
+        self.ip_packets_send_list:list = [] # Lista con los ip_packets a enviar
+        self.ip_packets_receive_list:list = [] # Lista con los ip_packets que se reciben
+        self.host_routes={}#tabla de rutas donde por casa m'ascara tengo una lista de rutas
+        self.ip_macs={}#diccionario al que le pasas una direccion ipp y devuelve la mac asociada si la tiene
+
+
         
 
 
@@ -91,9 +96,9 @@ class Host(Device):
             print(f"{ms} {name} {state} {bit}")
             
 
-    def check_read(self):
-        """Escribe el bit que recibio en el archivo de logs"""
-        pass
+    # def check_read(self):
+    #     """Escribe el bit que recibio en el archivo de logs"""
+    #     pass
     
     def save_data(self, data_msg):
         self._data = open(self.data_name, "a")
@@ -182,36 +187,33 @@ class Host(Device):
                 # self.write_data_in_file(self.receiving_frame)
 
         
-
+    def set_ip_mask(self,ip,mask):
+        self.ip_adress=ip
+        self.mask=mask
        # if self.actual_frame == -1:#esta vacio el frame actual
             
 
 
     #se le pasa el ip de destino y los datoa a enviar y crea un paquete ip con esto
     #ademas lo adiciona a la lista de paquetes ip a enviar
-    def create_ip_packet():
-        pass
+    # def create_ip_packet():
+    #     pass
 
     #se le pasa in paquete ip, crea un frame con este y lo manda a enviar
     #adiciona este frame a la lista de frames a enviar y ademas comienza su envio
-    def create_frame_from_ip_packet():
-        pass
+    # def create_frame_from_ip_packet():
+    #     pass
 
     #por aqui se envia in paquete ip, si el ip de destino no pertenece a la tabla de rutas del host
     #se hace una peticion arp para detectar la mac correspondiente al ip de destino
-    def send_ip_packet(self,ip_destino:str):
-        pass
+    # def send_ip_packet(self,ip_destino:str):
+    #     pass
 
-    #metodo encargado de enviar la peticion arpq
-    def send_arpq(self, ip_destino:str):
-        pass
+    
+
 
     #metodo encargado de recibir la respuesta arpr
     def receive_arpr(self,frame:Frame):
-        pass
-
-    #metodo que envia la respuesta de la peticion arpq
-    def send_arpr(self, tiempo:int, mac_destino:str):
         pass
 
     #metodo que recibe la peticion arpq y verifica si hay que dar la respuesta
